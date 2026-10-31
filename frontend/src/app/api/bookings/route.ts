@@ -1,0 +1,1 @@
+export { GET, POST } from "@rydex/backend/http/routes/bookings/route";

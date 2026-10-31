@@ -1,0 +1,1 @@
+export { GET } from "@rydex/backend/http/routes/partner/stats/route";

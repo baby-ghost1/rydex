@@ -1,0 +1,1 @@
+export { POST } from "@rydex/backend/http/routes/contact/route";

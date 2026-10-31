@@ -1,0 +1,44 @@
+import path from "node:path";
+import { loadEnvConfig } from "@next/env";
+import type { NextConfig } from "next";
+
+// `next dev` / `next build` run with the frontend workspace as the cwd.
+// The monorepo root is one level up, and it is also where the shared .env lives.
+const projectRoot = process.cwd();
+const monorepoRoot =
+  path.basename(projectRoot) === "frontend" ? path.dirname(projectRoot) : projectRoot;
+
+// Next.js only loads .env files from the Next.js project root (frontend/).
+// Load the repository-level .env explicitly so API routes, Auth.js and the
+// NEXT_PUBLIC_* inlining step all see the same configuration.
+// forceReload is required because Next has already called loadEnvConfig for
+// frontend/ by the time this config file is evaluated.
+loadEnvConfig(
+  monorepoRoot,
+  process.env.NODE_ENV !== "production",
+  console,
+  true,
+);
+
+const nextConfig: NextConfig = {
+  // Turbopack must be allowed to read backend/ and shared/ from the monorepo.
+  turbopack: {
+    root: monorepoRoot,
+  },
+  // Include the workspace packages in the standalone/serverless output trace.
+  outputFileTracingRoot: monorepoRoot,
+  transpilePackages: ["@rydex/backend", "@rydex/shared"],
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "res.cloudinary.com" },
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "lh3.googleusercontent.com" },
+    ],
+  },
+  serverExternalPackages: ["cloudinary", "nodemailer", "razorpay"],
+  experimental: {
+    serverActions: { bodySizeLimit: "10mb" },
+  },
+};
+
+export default nextConfig;

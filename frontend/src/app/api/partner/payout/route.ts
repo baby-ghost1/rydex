@@ -1,0 +1,1 @@
+export { PATCH } from "@rydex/backend/http/routes/partner/payout/route";

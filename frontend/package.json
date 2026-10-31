@@ -1,0 +1,38 @@
+{
+  "name": "@rydex/frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@next/env": "^16.2.4",
+    "@reduxjs/toolkit": "^2.13.0",
+    "@rydex/backend": "*",
+    "@rydex/shared": "*",
+    "@zegocloud/zego-uikit-prebuilt": "^2.18.5",
+    "leaflet": "^1.9.4",
+    "lucide-react": "^1.14.0",
+    "motion": "^12.38.0",
+    "next": "16.2.4",
+    "next-auth": "^5.0.0-beta.32",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-leaflet": "^5.0.0",
+    "react-redux": "^9.3.0",
+    "socket.io-client": "^4.8.4",
+    "sonner": "^2.0.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/leaflet": "^1.9.22",
+    "@types/node": "^24.19.2",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

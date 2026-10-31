@@ -1,0 +1,1 @@
+export { PATCH } from "@rydex/backend/http/routes/user/role/route";

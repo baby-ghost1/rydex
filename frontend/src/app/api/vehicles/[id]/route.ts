@@ -1,0 +1,1 @@
+export { GET, PATCH, DELETE } from "@rydex/backend/http/routes/vehicles/[id]/route";

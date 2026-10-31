@@ -1,0 +1,1 @@
+export { GET, PATCH } from "@rydex/backend/http/routes/user/profile/route";
