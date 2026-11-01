@@ -3,7 +3,6 @@ import Link from "next/link";
 import {
   ArrowRight,
   ArrowUpRight,
-  BadgeCheck,
   Banknote,
   CalendarCheck,
   CarFront,
@@ -15,7 +14,6 @@ import {
 } from "lucide-react";
 import PublicShell from "@/components/public-shell";
 import SiteNav from "@/components/site-nav";
-import SearchWidget from "@/components/search-widget";
 import CategoryQuickFilter from "@/components/category-quick-filter";
 import FeaturedFleet from "@/components/home/featured-fleet";
 import HomeFaq from "@/components/home/home-faq";

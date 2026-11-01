@@ -7,7 +7,8 @@ import { Server } from "socket.io";
 import { timingSafeEqual } from "crypto";
 import { verifySocketToken } from "../lib/socket";
 
-const PORT = Number(process.env.SOCKET_PORT || 4001);
+// Render/other PaaS assign a random `PORT`; self-hosted uses SOCKET_PORT.
+const PORT = Number(process.env.SOCKET_PORT || process.env.PORT || 4001);
 const ORIGIN = process.env.AUTH_URL || "http://localhost:3000";
 const ALLOWED_ORIGINS = Array.from(
   new Set([

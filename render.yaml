@@ -1,0 +1,24 @@
+# Render Blueprint — RYDEX realtime (Socket.IO) service.
+# Vercel hosts the Next.js app; this file only defines the socket process.
+# Deploy: Render Dashboard → New → Blueprint → pick this repo.
+services:
+  - type: web
+    name: rydex-socket
+    runtime: node
+    plan: free
+    repo: https://github.com/baby-ghost1/rydex.git
+    branch: main
+    buildCommand: npm ci --include=dev
+    startCommand: npm run socket
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Same values as the Vercel app — prompted at blueprint creation.
+      - key: AUTH_SECRET
+        sync: false
+      - key: SOCKET_INTERNAL_SECRET
+        sync: false
+      # Public URL of the Vercel app (CORS allow-list origin).
+      - key: AUTH_URL
+        sync: false
