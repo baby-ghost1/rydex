@@ -67,7 +67,7 @@ export default function HomePage() {
 
         <div className="relative mx-auto max-w-6xl">
           <div className="mx-auto max-w-4xl text-center">
-            <div className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-white/20 bg-surface/10 px-3.5 py-2 text-xs font-medium uppercase tracking-[0.16em] text-fg-muted backdrop-blur">
+            <div className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-medium uppercase tracking-[0.16em] text-fg-muted backdrop-blur">
               <span className="h-1.5 w-1.5 rounded-full bg-lime" aria-hidden="true" />
               One platform · every ride
             </div>
@@ -90,7 +90,7 @@ export default function HomePage() {
               </a>
               <Link
                 href="/dashboard/partner/onboarding"
-                className="btn border border-white/25 bg-surface/10 px-7 text-fg backdrop-blur hover:bg-surface/15"
+                className="btn border border-white/25 bg-white/10 px-7 text-fg backdrop-blur hover:bg-white/15"
               >
                 Become a partner
                 <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
@@ -179,7 +179,7 @@ export default function HomePage() {
                 </p>
               </div>
               <div
-                className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-surface/30 blur-2xl"
+                className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/30 blur-2xl"
                 aria-hidden="true"
               />
             </Link>
@@ -260,7 +260,7 @@ export default function HomePage() {
               return (
                 <div
                   key={step.title}
-                  className="rounded-3xl border border-line bg-surface/5 p-6 transition hover:border-line-strong hover:bg-surface/10"
+                  className="rounded-3xl border border-line bg-white/5 p-6 transition hover:border-line-strong hover:bg-white/10"
                 >
                   <div className="flex items-center justify-between">
                     <span className="grid h-10 w-10 place-items-center rounded-full bg-lime text-ink">
@@ -298,7 +298,7 @@ export default function HomePage() {
                 className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent" />
-              <div className="surface-inverse absolute inset-x-5 bottom-5 rounded-2xl border border-line bg-ink/85 p-4 text-fg backdrop-blur-xl">
+              <div className="surface-inverse absolute inset-x-5 bottom-5 rounded-2xl border border-line bg-surface-muted/85 p-4 text-fg backdrop-blur-xl">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-xs uppercase tracking-[0.16em] text-fg-subtle">
@@ -312,7 +312,7 @@ export default function HomePage() {
                     +18.2%
                   </span>
                 </div>
-                <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-surface/20">
+                <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/20">
                   <div className="h-full w-[90%] rounded-full bg-lime" />
                 </div>
                 <p className="mt-2 text-xs text-fg-subtle">

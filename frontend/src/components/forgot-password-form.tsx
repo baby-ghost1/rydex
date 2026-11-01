@@ -119,7 +119,7 @@ export default function ForgotPasswordForm() {
         <form onSubmit={resetPassword} className="mt-6 space-y-4">
           <div>
             <label className="label">Reset code</label>
-            <OtpInput value={otp} onChange={setOtp} disabled={loading} />
+            <OtpInput label="Reset code" value={otp} onChange={setOtp} disabled={loading} />
           </div>
           <div>
             <label className="label" htmlFor="new-password">New password</label>

@@ -366,7 +366,7 @@ export default function PartnerFleet() {
                   <span className={cn("rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider", vehicle.approved ? "bg-success text-white" : "bg-warning text-white")}>
                     {vehicle.approved ? "Approved" : "Under review"}
                   </span>
-                  <span className={cn("rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider", vehicle.available ? "bg-surface/95 text-ink" : "bg-ink/80 text-white")}>
+                  <span className={cn("rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider", vehicle.available ? "bg-surface/95 text-ink" : "bg-ink/85 text-white")}>
                     {vehicle.available ? "Available" : "Offline"}
                   </span>
                 </div>

@@ -122,7 +122,7 @@ export default function VerifyEmailForm({ initialEmail = "" }: { initialEmail?: 
         </div>
         <div>
           <label className="label">Verification code</label>
-          <OtpInput value={otp} onChange={setOtp} disabled={loading} />
+          <OtpInput label="Verification code" value={otp} onChange={setOtp} disabled={loading} />
         </div>
         <div>
           <label className="label" htmlFor="verify-password">

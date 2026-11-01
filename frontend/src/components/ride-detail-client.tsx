@@ -522,7 +522,7 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
                 {ride.status === "started" ? "On the way to your drop" : active ? "Partner on the move" : "Your route"}
               </div>
               {ride.status === "started" && (
-                <div className="pointer-events-none absolute inset-x-3 bottom-3 z-10 flex items-center justify-between rounded-2xl bg-ink/85 px-4 py-3 text-white backdrop-blur">
+                <div className="pointer-events-none absolute inset-x-3 bottom-3 z-10 flex items-center justify-between rounded-2xl bg-surface-muted/85 px-4 py-3 text-white backdrop-blur">
                   <div>
                     <p className="text-[10px] uppercase tracking-wider text-fg-inverse-subtle">Arriving at drop</p>
                     <p className="text-sm font-semibold">{ride.drop.address.split(",")[0]}</p>
@@ -972,7 +972,7 @@ function PartnerControls({
       {["accepted", "arrived"].includes(ride.status) && (
         <div className="mt-4 rounded-2xl border border-line bg-surface-muted/50 p-4">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-fg-muted">Start with pickup OTP</p>
-          <div className="mt-2 max-w-[220px]"><OtpInput length={4} value={pickupOtp} onChange={setPickupOtp} autoFocus={false} /></div>
+          <div className="mt-2 max-w-[220px]"><OtpInput label="Pickup OTP" length={4} value={pickupOtp} onChange={setPickupOtp} autoFocus={false} /></div>
           <button type="button" onClick={onStart} disabled={pickupOtp.length !== 4 || actionLoading === "started"} className="btn-dark mt-3 w-full">
             {actionLoading === "started" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Navigation className="h-4 w-4" />} Start ride
           </button>
@@ -1022,7 +1022,7 @@ function PartnerControls({
 
           <div className="mt-4 rounded-2xl border border-line bg-surface-muted/50 p-4">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-fg-muted">Complete with drop OTP</p>
-            <div className="mt-2 max-w-[220px]"><OtpInput length={4} value={dropOtp} onChange={setDropOtp} autoFocus={false} /></div>
+            <div className="mt-2 max-w-[220px]"><OtpInput label="Drop OTP" length={4} value={dropOtp} onChange={setDropOtp} autoFocus={false} /></div>
             <button type="button" onClick={onComplete} disabled={dropOtp.length !== 4 || actionLoading === "completed"} className="btn-dark mt-3 w-full">
               {actionLoading === "completed" ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />} Complete ride
             </button>

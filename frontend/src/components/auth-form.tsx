@@ -428,6 +428,7 @@ export default function AuthForm({
 
           <div className="mt-6">
             <OtpInput
+              label="Verification code"
               value={otp}
               onChange={(value) => {
                 setOtp(value);

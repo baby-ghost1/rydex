@@ -363,9 +363,9 @@ export default function CheckoutClient({
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
               <div className="absolute bottom-4 left-4 flex flex-wrap gap-2 text-xs font-semibold text-white">
-                <span className="rounded-full bg-ink/80 px-2.5 py-1 backdrop-blur"><Users className="mr-1 inline h-3 w-3" aria-hidden="true" />{vehicle.seats} seats</span>
-                <span className="rounded-full bg-ink/80 px-2.5 py-1 capitalize backdrop-blur">{vehicle.transmission}</span>
-                <span className="rounded-full bg-ink/80 px-2.5 py-1 capitalize backdrop-blur">{vehicle.fuel}</span>
+                <span className="rounded-full bg-surface-muted/80 px-2.5 py-1 backdrop-blur"><Users className="mr-1 inline h-3 w-3" aria-hidden="true" />{vehicle.seats} seats</span>
+                <span className="rounded-full bg-surface-muted/80 px-2.5 py-1 capitalize backdrop-blur">{vehicle.transmission}</span>
+                <span className="rounded-full bg-surface-muted/80 px-2.5 py-1 capitalize backdrop-blur">{vehicle.fuel}</span>
               </div>
             </div>
             <div className="flex flex-wrap items-center justify-between gap-3 p-5">

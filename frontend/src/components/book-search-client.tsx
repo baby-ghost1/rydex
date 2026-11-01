@@ -252,7 +252,7 @@ export default function BookSearchClient({ initial }: { initial: BookSearchProps
                     sizes="(max-width: 640px) 100vw, 176px"
                     className="object-cover transition duration-500 group-hover:scale-105 motion-reduce:transform-none"
                   />
-                  <span className="absolute left-2.5 top-2.5 rounded-full bg-ink/85 px-2.5 py-1 text-xs font-semibold uppercase tracking-wider text-white backdrop-blur">
+                  <span className="absolute left-2.5 top-2.5 rounded-full bg-surface-muted/85 px-2.5 py-1 text-xs font-semibold uppercase tracking-wider text-white backdrop-blur">
                     {CATEGORY_MAP[vehicle.category]?.label}
                   </span>
                 </div>

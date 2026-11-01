@@ -56,7 +56,7 @@ export default function CategoryTabs({
               variant === "dark"
                 ? active
                   ? "border-lime bg-lime text-ink"
-                  : "border-white/20 text-fg-inverse-muted hover:border-white/40 hover:bg-surface/10 hover:text-fg-inverse"
+                  : "border-white/20 text-fg-inverse-muted hover:border-white/40 hover:bg-white/10 hover:text-fg-inverse"
                 : active
                   ? "border-ink bg-ink text-white shadow-sm"
                   : "border-line-strong bg-surface text-fg-muted hover:border-fg-subtle hover:bg-surface-muted hover:text-fg",

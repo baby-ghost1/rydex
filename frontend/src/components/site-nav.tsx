@@ -198,7 +198,7 @@ export default function SiteNav({ dark = false }: { dark?: boolean }) {
                   dark
                     ? active
                       ? "bg-white text-ink"
-                      : "text-fg-muted hover:bg-surface/10 hover:text-fg"
+                      : "text-fg-muted hover:bg-white/10 hover:text-fg"
                     : active
                       ? "bg-ink text-white"
                       : "text-fg-muted hover:bg-surface-muted hover:text-fg",
@@ -233,7 +233,7 @@ export default function SiteNav({ dark = false }: { dark?: boolean }) {
                 className={cn(
                   "flex min-h-11 items-center gap-2 rounded-full border py-1 pl-1 pr-2.5 text-sm font-medium transition",
                   dark
-                    ? "border-white/20 bg-surface/10 text-fg hover:bg-surface/15"
+                    ? "border-white/20 bg-white/10 text-fg hover:bg-white/15"
                     : "border-line bg-surface text-fg hover:bg-surface-muted",
                 )}
                 aria-expanded={accountOpen}
@@ -361,7 +361,7 @@ export default function SiteNav({ dark = false }: { dark?: boolean }) {
             className={cn(
               "icon-button border lg:hidden",
               dark
-                ? "border-white/20 text-fg hover:bg-surface/10"
+                ? "border-white/20 text-fg hover:bg-white/10"
                 : "border-line text-fg hover:bg-surface-muted",
             )}
           >
@@ -404,10 +404,10 @@ export default function SiteNav({ dark = false }: { dark?: boolean }) {
                     "flex min-h-11 items-center rounded-2xl px-4 text-sm font-medium transition",
                     active
                       ? dark
-                        ? "bg-surface/10 text-fg"
+                        ? "bg-white/10 text-fg"
                         : "bg-surface-muted text-fg"
                       : dark
-                        ? "text-fg-muted hover:bg-surface/10 hover:text-fg"
+                        ? "text-fg-muted hover:bg-white/10 hover:text-fg"
                         : "text-fg-muted hover:bg-surface-muted hover:text-fg",
                   )}
                 >
@@ -442,7 +442,7 @@ export default function SiteNav({ dark = false }: { dark?: boolean }) {
                   className={cn(
                     "mt-1 flex min-h-11 w-full items-center gap-2.5 rounded-2xl px-4 text-sm font-medium transition",
                     dark
-                      ? "text-danger-on-dark hover:bg-surface/10"
+                      ? "text-danger-on-dark hover:bg-white/10"
                       : "text-danger hover:bg-danger/5",
                   )}
                 >

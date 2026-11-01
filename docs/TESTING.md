@@ -10,7 +10,8 @@ RYDEX ships a focused automated suite for the pure logic that is easiest to get 
 | Lint | ESLint + Next.js rules | React/Next.js correctness and common bugs |
 | Unit tests | Vitest 5 | Fare math, validation, OTP hashing, AES-GCM, socket tokens, ZEGO token04, pagination, rate-limit windows, formatting |
 | Production build | `next build` | App Router boundaries, server/client imports, route compilation |
-| Browser verification | Playwright + system Edge (manual/scripted) | Real auth, booking, onboarding, admin, payments, realtime, maps, mobile layouts |
+| Browser verification | Playwright project (`frontend/tests`) | Critical flows, keyboard/ARIA/target-size audits (axe-core), visual regression across viewports |
+| Manual browser matrix | Seeded local environment | Real auth, booking, onboarding, admin, payments, realtime, maps, mobile layouts |
 
 The committed suite deliberately avoids a live database. The tested modules are pure or use in-memory state, so tests are fast and deterministic. Database-backed flows are verified in the browser against a seeded local MongoDB.
 
@@ -22,7 +23,16 @@ npm run lint         # ESLint
 npm test             # Vitest, single run
 npm run test:watch   # Vitest watch mode
 npm run build        # Production Next.js build
+
+# From frontend/ - Phase 3 QA suite (Playwright)
+npm run test:e2e        # Critical user journeys
+npm run test:visual     # Screenshot regression (first run: test:visual:update)
+npm run test:a11y       # axe-core WCAG 2.1 AA, focus, ARIA, 44px targets
+npm run test:qa         # All of the above
 ```
+
+See `frontend/qa-matrix.md` for the full cross-browser, keyboard, screen-reader
+and visual-regression checklist, and `frontend/tests/README.md` for suite setup.
 
 Recommended pre-push order:
 
@@ -130,7 +140,12 @@ describe("minimum fare", () => {
 
 The following flows were exercised against a seeded local environment using Playwright with system Microsoft Edge (`channel: "msedge"`), the Next.js dev server on `http://localhost:3000`, the Socket.IO server on `4001`, and local MongoDB on `27017`.
 
-> The Playwright scripts were used as an external verification harness and are not committed as a test project. The committed suite is Vitest-only. The matrix below is the reproducibility record.
+> The manual matrix below is the reproducibility record from the original
+> pre-launch sweep. A committed Playwright project now lives in
+> `frontend/tests` (E2E, accessibility and visual-regression suites); see
+> `frontend/tests/README.md`. Specs that need seeded database state skip
+> themselves when a session is unavailable, so the suite also runs against a
+> plain static build.
 
 ### 4.1 Public site and routing
 
@@ -401,10 +416,10 @@ Notes:
 
 ## 9. Known gaps
 
-- No committed component/UI tests. Layouts and flows are covered by the browser matrix, which is not a CI job.
+- No committed component/UI unit tests; critical flows are covered by the committed Playwright suites in `frontend/tests`, which are not yet wired into CI.
 - No database integration tests. Aggregation pipelines, indexes and race conditions (double accept, double rating) are verified manually.
 - No load or concurrency testing. Multi-instance rate limits and Socket.IO scaling need a shared store/adapter.
 - No Razorpay webhook tests. Verification uses the browser callback and signature; a production webhook should be tested separately.
 - No email rendering snapshots. Templates are plain HTML and were checked in the dev outbox.
-- No accessibility audit. Keyboard paths, focus traps and contrast should be checked with axe/Lighthouse before launch.
+- Accessibility is covered by `frontend/tests/a11y` (axe-core WCAG 2.1 AA, focus traps, ARIA, 44px targets) for public pages and signed-out states; authenticated dashboard pages require a seeded session and Lighthouse/real screen-reader passes are still recommended before launch.
 - Rate-limit tests validate the in-memory implementation only. Production multi-instance behavior depends on deployment topology.

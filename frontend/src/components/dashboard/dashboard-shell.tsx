@@ -11,7 +11,6 @@ import {
   CalendarRange,
   ChevronDown,
   ClipboardList,
-  CreditCard,
   Gauge,
   LogOut,
   Menu,
@@ -132,18 +131,14 @@ export default function DashboardShell({
 }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [accountOpen, setAccountOpen] = useState(false);
   const groups = navFor(user);
 
   const drawerRef = useRef<HTMLDivElement>(null);
   const drawerTriggerRef = useRef<HTMLButtonElement>(null);
   const drawerCloseRef = useRef<HTMLButtonElement>(null);
-  const accountRef = useRef<HTMLDivElement>(null);
-  const accountTriggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     setMobileOpen(false);
-    setAccountOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -190,19 +185,6 @@ export default function DashboardShell({
       document.removeEventListener("keydown", onKeyDown);
     };
   }, [mobileOpen]);
-
-  useEffect(() => {
-    if (!accountOpen) return;
-
-    const onPointerDown = (event: PointerEvent) => {
-      if (!accountRef.current?.contains(event.target as Node)) {
-        setAccountOpen(false);
-      }
-    };
-
-    document.addEventListener("pointerdown", onPointerDown);
-    return () => document.removeEventListener("pointerdown", onPointerDown);
-  }, [accountOpen]);
 
   const roleLabel =
     user.role === "admin"
@@ -341,102 +323,28 @@ export default function DashboardShell({
       )}
 
       <div className="lg:pl-64">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-line bg-surface-muted/90 px-4 backdrop-blur-xl sm:px-6">
-          <div className="flex items-center gap-3">
-            <button
-              ref={drawerTriggerRef}
-              type="button"
-              onClick={() => setMobileOpen(true)}
-              aria-label="Open navigation"
-              aria-expanded={mobileOpen}
-              aria-controls="dashboard-navigation"
-              className="icon-button border border-line bg-surface text-fg lg:hidden"
-            >
-              <Menu className="h-4 w-4" aria-hidden="true" />
-            </button>
-            <div className="hidden text-xs font-semibold uppercase tracking-[0.14em] text-fg-subtle sm:block">
-              RYDEX workspace
-            </div>
-          </div>
+        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-line bg-surface-muted/90 px-4 backdrop-blur-xl sm:px-6 lg:hidden">
+  {/* Upar line ke aakhiri mein 'lg:hidden' jod diya hai, jisse desktop par poora header hide rahega */}
+  
+  <div className="flex items-center gap-3">
+    <button
+      ref={drawerTriggerRef}
+      type="button"
+      onClick={() => setMobileOpen(true)}
+      aria-label="Open navigation"
+      aria-expanded={mobileOpen}
+      aria-controls="dashboard-navigation"
+      className="icon-button border border-line bg-surface text-fg"
+    >
+      <Menu className="h-4 w-4" aria-hidden="true" />
+    </button>
+    
+    <div className="hidden text-xs font-semibold uppercase tracking-[0.14em] text-fg-subtle sm:block">
+      RYDEX workspace
+    </div>
+  </div>
+</header>
 
-          <div className="flex items-center gap-2">
-            <Link
-              href="/book"
-              className="hidden min-h-11 items-center gap-1.5 rounded-full border border-line-strong bg-surface px-4 text-xs font-semibold text-fg transition hover:bg-surface-muted sm:inline-flex"
-            >
-              <Bike className="h-3.5 w-3.5" aria-hidden="true" /> Book a ride
-            </Link>
-
-            <div className="relative" ref={accountRef}>
-              <button
-                ref={accountTriggerRef}
-                type="button"
-                onClick={() => setAccountOpen((value) => !value)}
-                className="flex min-h-11 items-center gap-2 rounded-full border border-line bg-surface py-1.5 pl-1.5 pr-3 text-xs font-semibold text-fg transition hover:bg-surface-muted"
-                aria-expanded={accountOpen}
-                aria-controls="dashboard-account-menu"
-                aria-label="Account menu"
-              >
-                <span className="grid h-8 w-8 place-items-center overflow-hidden rounded-full bg-ink text-[10px] font-bold text-white">
-                  {user.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={user.image} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    initials(user.name)
-                  )}
-                </span>
-                <span className="hidden max-w-24 truncate sm:block">
-                  {user.name.split(" ")[0]}
-                </span>
-                <ChevronDown
-                  className={cn("h-3.5 w-3.5 text-fg-subtle transition", accountOpen && "rotate-180")}
-                  aria-hidden="true"
-                />
-              </button>
-
-              {accountOpen && (
-                <div
-                  id="dashboard-account-menu"
-                  className="absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-line bg-surface p-1.5 text-fg shadow-2xl"
-                >
-                  <div className="border-b border-line px-3 py-2.5">
-                    <p className="truncate text-sm font-bold text-fg">{user.name}</p>
-                    <p className="truncate text-xs text-fg-muted">{user.email}</p>
-                  </div>
-                  {user.role === "user" && (
-                    <Link
-                      href="/dashboard/user/profile"
-                      className="mt-1 flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm transition hover:bg-surface-muted"
-                    >
-                      <UserRound className="h-4 w-4" aria-hidden="true" /> Profile &amp; settings
-                    </Link>
-                  )}
-                  {user.role === "partner" && (
-                    <Link
-                      href="/dashboard/partner/earnings"
-                      className="mt-1 flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm transition hover:bg-surface-muted"
-                    >
-                      <CreditCard className="h-4 w-4" aria-hidden="true" /> Payout settings
-                    </Link>
-                  )}
-                  <Link
-                    href="/"
-                    className="flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm transition hover:bg-surface-muted"
-                  >
-                    <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Back to site
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => signOut({ callbackUrl: "/" })}
-                    className="flex min-h-11 w-full items-center gap-2 rounded-xl px-3 text-left text-sm text-danger transition hover:bg-danger/5"
-                  >
-                    <LogOut className="h-4 w-4" aria-hidden="true" /> Sign out
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </header>
 
         <main className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6 sm:py-8">{children}</main>
       </div>

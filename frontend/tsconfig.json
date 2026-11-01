@@ -22,5 +22,5 @@
     ".next/dev/types/**/*.ts",
     "../shared/src/types/next-auth.d.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "tests", "playwright.config.ts"]
 }

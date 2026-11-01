@@ -32,7 +32,7 @@ export function MiniBarChart({
                 className={cn(
                   "w-full max-w-9 rounded-t-lg transition group-hover:opacity-80",
                   tone === "lime" ? "bg-lime" : "bg-ink",
-                  item.value === 0 && "bg-ink/8",
+                  item.value === 0 && "bg-ink/10",
                 )}
                 style={{ height: `${height}%` }}
                 title={`${item.label}: ${format(item.value)}${item.hint ? ` · ${item.hint}` : ""}`}

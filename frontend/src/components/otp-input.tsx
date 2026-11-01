@@ -10,6 +10,7 @@ export default function OtpInput({
   onComplete,
   autoFocus = true,
   disabled,
+  label = "One-time passcode",
 }: {
   length?: number;
   value: string;
@@ -17,6 +18,7 @@ export default function OtpInput({
   onComplete?: (value: string) => void;
   autoFocus?: boolean;
   disabled?: boolean;
+  label?: string;
 }) {
   const refs = useRef<Array<HTMLInputElement | null>>([]);
   const [digits, setDigits] = useState<string[]>(() =>
@@ -68,7 +70,12 @@ export default function OtpInput({
   }
 
   return (
-    <div className="flex justify-between gap-2" onPaste={handlePaste}>
+    <div
+      role="group"
+      aria-label={label}
+      className="flex justify-between gap-2"
+      onPaste={handlePaste}
+    >
       {Array.from({ length }).map((_, index) => (
         <input
           key={index}
