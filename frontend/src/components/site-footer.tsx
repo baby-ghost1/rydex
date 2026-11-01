@@ -73,7 +73,6 @@ export default function SiteFooter() {
           <div className="flex flex-wrap gap-5">
             <Link href="/terms" className="inline-flex min-h-11 items-center hover:text-fg">Terms</Link>
             <Link href="/privacy" className="inline-flex min-h-11 items-center hover:text-fg">Privacy</Link>
-            <span className="inline-flex min-h-11 items-center">Made for the road.</span>
           </div>
         </div>
       </div>

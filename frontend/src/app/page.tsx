@@ -14,6 +14,7 @@ import {
   Star,
 } from "lucide-react";
 import PublicShell from "@/components/public-shell";
+import SiteNav from "@/components/site-nav";
 import SearchWidget from "@/components/search-widget";
 import CategoryQuickFilter from "@/components/category-quick-filter";
 import FeaturedFleet from "@/components/home/featured-fleet";
@@ -52,8 +53,8 @@ const steps = [
 
 export default function HomePage() {
   return (
-    <PublicShell darkNav padded={false} footer>
-      <section className="surface-inverse relative min-h-[860px] overflow-hidden px-4 pb-14 pt-36 text-fg sm:min-h-[900px] sm:px-6 sm:pt-44">
+    <PublicShell padded={false} footer>
+      <section className="surface-inverse relative min-h-[860px] overflow-hidden px-4 pb-14 pt-4 text-fg sm:min-h-[900px] sm:px-6 sm:pt-6">
         <Image
           src="/heroImage.jpg"
           alt=""
@@ -66,13 +67,17 @@ export default function HomePage() {
         <div className="absolute inset-x-0 bottom-0 h-64 bg-gradient-to-t from-ink to-transparent" />
 
         <div className="relative mx-auto max-w-6xl">
+          <div className="-mx-4 sm:-mx-6">
+            <SiteNav dark />
+          </div>
+
           <div className="mx-auto max-w-4xl text-center">
-            <div className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-medium uppercase tracking-[0.16em] text-fg-muted backdrop-blur">
+            {/* <div className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-medium uppercase tracking-[0.16em] text-fg-muted backdrop-blur">
               <span className="h-1.5 w-1.5 rounded-full bg-lime" aria-hidden="true" />
               One platform · every ride
-            </div>
+            </div> */}
 
-            <h1 className="type-display animate-fade-up mt-6">
+            <h1 className="type-display animate-fade-up mt-18">
               Book Any
               <br />
               Vehicle<span className="text-lime">.</span>
@@ -84,10 +89,10 @@ export default function HomePage() {
             </p>
 
             <div className="animate-fade-up mt-8 flex flex-wrap items-center justify-center gap-3">
-              <a href="#search" className="btn-light px-7">
+              <Link href="/book" className="btn-light px-7">
                 Book a ride
                 <ArrowRight className="h-4 w-4" aria-hidden="true" />
-              </a>
+              </Link>
               <Link
                 href="/dashboard/partner/onboarding"
                 className="btn border border-white/25 bg-white/10 px-7 text-fg backdrop-blur hover:bg-white/15"
@@ -113,7 +118,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div id="search" className="mx-auto mt-12 max-w-5xl scroll-mt-32 sm:mt-16">
+          {/* <div id="search" className="mx-auto mt-12 max-w-5xl scroll-mt-32 sm:mt-16">
             <div className="mb-3 flex items-center justify-between px-2 text-xs font-semibold uppercase tracking-[0.16em] text-fg-subtle">
               <span>Where to?</span>
               <span className="hidden items-center gap-1.5 sm:flex">
@@ -122,10 +127,10 @@ export default function HomePage() {
               </span>
             </div>
             <SearchWidget />
-          </div>
+          </div> */}
         </div>
 
-        <div className="relative mx-auto mt-10 flex max-w-6xl flex-wrap items-center justify-center gap-x-10 gap-y-5 border-t border-line pt-8 sm:justify-between">
+        <div className="relative mx-auto mt-30 flex max-w-6xl flex-wrap items-center justify-center gap-x-10 gap-y-5 border-t border-line pt-8 sm:justify-between">
           {[
             ["4.9/5", "Average rider rating"],
             ["12k+", "Trips completed"],
@@ -200,7 +205,7 @@ export default function HomePage() {
                       0{index + 1}
                     </span>
                   </div>
-                  <div className="absolute inset-x-0 bottom-8 mx-auto h-28 w-40 transition duration-500 group-hover:scale-110 motion-reduce:transform-none">
+                  <div className="absolute inset-x-0 bottom-18 mx-auto h-28 w-40 transition duration-500 group-hover:scale-110 motion-reduce:transform-none">
                     <Image
                       src={category.image}
                       alt=""

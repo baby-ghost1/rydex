@@ -167,7 +167,7 @@ export default function SiteNav({ dark = false }: { dark?: boolean }) {
   }
 
   return (
-    <header className="no-print relative inset-x-0 top-0 z-50 px-4 pt-5 sm:px-6">
+    <header className="no-print relative inset-x-0 top-0 z-50 px-4 pt-2 sm:px-6">
       <div
         className={cn(
           "mx-auto flex max-w-6xl items-center justify-between gap-4 rounded-full border px-4 py-2.5 shadow-[0_18px_50px_rgba(0,0,0,0.12)] sm:px-6",

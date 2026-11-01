@@ -12,8 +12,8 @@ import {
   ChevronDown,
   ClipboardList,
   Gauge,
+  ChevronRight,
   LogOut,
-  Menu,
   Package,
   ShieldCheck,
   Sparkles,
@@ -108,7 +108,6 @@ function navFor(user: DashboardUser): { label: string; items: NavItem[] }[] {
       items: [
         { href: "/dashboard/user", label: "Overview", icon: Gauge, exact: true },
         { href: "/dashboard/user/bookings", label: "My bookings", icon: Package },
-        { href: "/dashboard/user/profile", label: "Profile", icon: UserRound },
       ],
     },
     {
@@ -197,7 +196,11 @@ export default function DashboardShell({
     <div className="flex h-full flex-col bg-surface text-fg">
       <div className="px-5 pt-6">
         <Logo dark={false} className="min-h-11" />
-        <div className="mt-5 flex items-center gap-2.5 rounded-2xl border border-line bg-surface-muted p-2.5">
+        <Link
+          href="/dashboard/user/profile"
+          aria-label="Open profile"
+          className="mt-5 flex items-center gap-2.5 rounded-2xl border border-line bg-surface-muted p-2.5 transition hover:border-line-strong hover:bg-surface active:scale-[0.99]"
+        >
           <span className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-full bg-ink text-xs font-bold text-white">
             {user.image ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -211,7 +214,7 @@ export default function DashboardShell({
             <p className="truncate text-xs text-fg-muted">{roleLabel}</p>
           </div>
           <ChevronDown className="h-4 w-4 text-fg-subtle" aria-hidden="true" />
-        </div>
+        </Link>
       </div>
 
       <nav
@@ -293,6 +296,24 @@ export default function DashboardShell({
         {sidebar}
       </aside>
 
+      {/* Left-edge drawer handle: small screens only. A chevron-style pill that
+          slides the navigation panel open; replaces the old header menu button. */}
+      <button
+        ref={drawerTriggerRef}
+        type="button"
+        onClick={() => setMobileOpen(true)}
+        aria-label="Open navigation"
+        aria-expanded={mobileOpen}
+        aria-controls="dashboard-navigation"
+        className="group fixed left-0 top-1/2 z-50 flex h-16 w-6 -translate-y-1/2 items-center justify-center rounded-r-2xl border border-l-0 border-line bg-surface text-fg-muted shadow-md transition hover:bg-surface-muted hover:text-fg active:scale-95 lg:hidden"
+      >
+        <ChevronRight
+          className="h-5 w-6 transition-transform group-hover:translate-x-0.5"
+          aria-hidden="true"
+        />
+        <span className="sr-only">menu</span>
+      </button>
+
       {mobileOpen && (
         <div className="fixed inset-0 z-[70] lg:hidden">
           <button
@@ -323,29 +344,11 @@ export default function DashboardShell({
       )}
 
       <div className="lg:pl-64">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-line bg-surface-muted/90 px-4 backdrop-blur-xl sm:px-6 lg:hidden">
-  {/* Upar line ke aakhiri mein 'lg:hidden' jod diya hai, jisse desktop par poora header hide rahega */}
-  
-  <div className="flex items-center gap-3">
-    <button
-      ref={drawerTriggerRef}
-      type="button"
-      onClick={() => setMobileOpen(true)}
-      aria-label="Open navigation"
-      aria-expanded={mobileOpen}
-      aria-controls="dashboard-navigation"
-      className="icon-button border border-line bg-surface text-fg"
-    >
-      <Menu className="h-4 w-4" aria-hidden="true" />
-    </button>
-    
-    <div className="hidden text-xs font-semibold uppercase tracking-[0.14em] text-fg-subtle sm:block">
-      RYDEX workspace
-    </div>
-  </div>
-</header>
-
-
+        {/* <header className="sticky top-0 z-30 flex h-16 items-center justify-end border-b border-line bg-surface-muted/90 px-4 backdrop-blur-xl sm:px-6 lg:hidden">
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-fg-subtle">
+            RYDEX workspace
+          </div>
+        </header> */}
         <main className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6 sm:py-8">{children}</main>
       </div>
     </div>
