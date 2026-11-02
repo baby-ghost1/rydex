@@ -21,7 +21,7 @@ import SearchWidget from "@/components/search-widget";
 import Modal from "@/components/ui/modal";
 import { formatLocalDate } from "@/lib/date";
 import { CATEGORY_MAP } from "@rydex/shared/constants";
-import { inr } from "@rydex/shared/utils";
+import { inr, cn } from "@rydex/shared/utils";
 import type { Place } from "@/components/location-input";
 import type { VehicleDTO } from "@rydex/shared/types";
 import type { MapPoint } from "@/components/map/map-inner";
@@ -35,21 +35,51 @@ export interface BookSearchProps {
   query: string;
 }
 
+type NearbyVehicle = VehicleDTO & {
+  distanceToPickupKm?: number | null;
+  partnerOnline?: boolean;
+};
+
 export default function BookSearchClient({ initial }: { initial: BookSearchProps }) {
   const [category, setCategory] = useState(initial.category || "all");
   const [q, setQ] = useState("");
   const [sort, setSort] = useState("rating");
-  const [vehicles, setVehicles] = useState<VehicleDTO[]>([]);
+  const [vehicles, setVehicles] = useState<NearbyVehicle[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [editOpen, setEditOpen] = useState(false);
   const [error, setError] = useState("");
+  const [nearbyOnly, setNearbyOnly] = useState(Boolean(initial.pickup));
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [locating, setLocating] = useState(false);
+
+  const searchPoint = initial.pickup || coords;
+
+  function locateMe() {
+    if (!navigator.geolocation) {
+      setError("This browser does not support location search.");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setCoords({ lat: position.coords.latitude, lng: position.coords.longitude });
+        setNearbyOnly(true);
+        setLocating(false);
+      },
+      () => {
+        setError("We couldn't read your location. Allow location access or add a pickup address.");
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 15_000, maximumAge: 30_000 },
+    );
+  }
 
   useEffect(() => {
     setPage(1);
-  }, [category, sort, q]);
+  }, [category, sort, q, nearbyOnly]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -58,17 +88,38 @@ export default function BookSearchClient({ initial }: { initial: BookSearchProps
       setError("");
 
       try {
-        const params = new URLSearchParams({
-          page: String(page),
-          limit: "8",
-          sort,
-        });
-        if (category !== "all") params.set("category", category);
-        if (q.trim()) params.set("q", q.trim());
+        let res: Response;
 
-        const res = await fetch(`/api/vehicles?${params.toString()}`, {
-          signal: controller.signal,
-        });
+        if (nearbyOnly && searchPoint) {
+          const params = new URLSearchParams({
+            lat: String(searchPoint.lat),
+            lng: String(searchPoint.lng),
+            maxDistanceKm: "50",
+            page: String(page),
+            limit: "8",
+          });
+          if (category !== "all") params.set("category", category);
+          if (initial.drop) {
+            params.set("dropLat", String(initial.drop.lat));
+            params.set("dropLng", String(initial.drop.lng));
+          }
+          res = await fetch(`/api/vehicles/nearby?${params.toString()}`, {
+            signal: controller.signal,
+          });
+        } else {
+          const params = new URLSearchParams({
+            page: String(page),
+            limit: "8",
+            sort,
+          });
+          if (category !== "all") params.set("category", category);
+          if (q.trim()) params.set("q", q.trim());
+
+          res = await fetch(`/api/vehicles?${params.toString()}`, {
+            signal: controller.signal,
+          });
+        }
+
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Could not load vehicles");
 
@@ -91,7 +142,7 @@ export default function BookSearchClient({ initial }: { initial: BookSearchProps
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [category, sort, q, page]);
+  }, [category, sort, q, page, nearbyOnly, searchPoint, initial.drop]);
 
   const mapPoints = useMemo(() => {
     const points: MapPoint[] = [];
@@ -208,7 +259,45 @@ export default function BookSearchClient({ initial }: { initial: BookSearchProps
       <div className="mt-7 flex flex-col gap-3 rounded-3xl border border-line bg-surface p-3 sm:flex-row sm:items-center sm:justify-between">
         <CategoryTabs value={category} onChange={setCategory} includeAll />
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {!initial.pickup && (
+            <button
+              type="button"
+              onClick={locateMe}
+              disabled={locating}
+              className={cn(
+                "inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 text-xs font-semibold transition",
+                nearbyOnly && coords
+                  ? "border-success/30 bg-success/10 text-success"
+                  : "border-line-strong bg-surface text-fg-muted hover:text-ink",
+              )}
+            >
+              {locating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Navigation className="h-3.5 w-3.5" />}
+              Use my location
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => {
+              if (!nearbyOnly && !searchPoint) {
+                locateMe();
+                return;
+              }
+              setNearbyOnly((value) => !value);
+            }}
+            className={cn(
+              "inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 text-xs font-semibold transition",
+              nearbyOnly
+                ? "border-success/30 bg-success/10 text-success"
+                : "border-line-strong bg-surface text-fg-muted hover:text-ink",
+            )}
+            aria-pressed={nearbyOnly}
+          >
+            <span className={cn("h-1.5 w-1.5 rounded-full", nearbyOnly ? "bg-success" : "bg-line-strong")} />
+            Online partners nearby
+          </button>
+
           <label htmlFor="book-sort" className="sr-only">
             Sort vehicles
           </label>
@@ -225,6 +314,13 @@ export default function BookSearchClient({ initial }: { initial: BookSearchProps
           </select>
         </div>
       </div>
+
+      {nearbyOnly && (
+        <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-surface-muted px-3 py-1.5 text-[11px] text-fg-muted">
+          <span className="h-1.5 w-1.5 rounded-full bg-success" />
+          Showing only vehicles from partners who are online and accept rides {searchPoint ? "at your pickup point" : "near you"}.
+        </p>
+      )}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.25fr_0.75fr]">
         <div>
@@ -280,6 +376,21 @@ export default function BookSearchClient({ initial }: { initial: BookSearchProps
                       </span>
                     </div>
 
+                    {nearbyOnly && vehicle.partnerOnline && (
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-semibold text-success">
+                          <span className="h-1.5 w-1.5 rounded-full bg-success" />
+                          Partner online
+                        </span>
+                        {typeof vehicle.distanceToPickupKm === "number" && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-surface-muted px-2 py-0.5 text-[10px] font-medium text-fg-muted">
+                            <Navigation className="h-3 w-3" />
+                            {vehicle.distanceToPickupKm} km away
+                          </span>
+                        )}
+                      </div>
+                    )}
+
                     <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1.5 text-xs text-fg-muted">
                       <span className="inline-flex items-center gap-1">
                         <Users className="h-3.5 w-3.5" aria-hidden="true" />
@@ -334,21 +445,31 @@ export default function BookSearchClient({ initial }: { initial: BookSearchProps
             <div className="rounded-3xl border border-dashed border-line-strong bg-surface-muted px-6 py-16 text-center">
               <MapPin className="mx-auto h-6 w-6 text-fg-subtle" aria-hidden="true" />
               <p className="font-display mt-3 text-lg font-bold text-fg">
-                No rides found
+                {nearbyOnly ? "No online partners nearby" : "No rides found"}
               </p>
               <p className="mt-1 text-sm text-fg-muted">
-                Try a different category or clear your search.
+                {nearbyOnly
+                  ? "Partners near this pickup are offline or outside their accepted range right now."
+                  : "Try a different category or clear your search."}
               </p>
-              <button
-                type="button"
-                onClick={() => {
-                  setCategory("all");
-                  setQ("");
-                }}
-                className="btn-dark mt-5"
-              >
-                Clear filters
-              </button>
+              <div className="mt-5 flex flex-wrap justify-center gap-2">
+                {nearbyOnly && (
+                  <button type="button" onClick={() => setNearbyOnly(false)} className="btn-dark">
+                    Show all vehicles
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCategory("all");
+                    setQ("");
+                    if (!nearbyOnly) setNearbyOnly(Boolean(searchPoint));
+                  }}
+                  className="btn-outline"
+                >
+                  Clear filters
+                </button>
+              </div>
             </div>
           )}
 

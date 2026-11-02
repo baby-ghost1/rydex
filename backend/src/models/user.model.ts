@@ -70,6 +70,16 @@ const PartnerProfileSchema = new Schema<PartnerProfile>(
       minimumFare: Number,
       waitingCharge: Number,
     },
+    preferences: {
+      acceptRadiusKm: { type: Number, default: 10, min: 1, max: 100 },
+      maxDestinationKm: { type: Number, default: 50, min: 5, max: 500 },
+    },
+    currentLocation: {
+      lat: Number,
+      lng: Number,
+      updatedAt: Date,
+      isOnline: { type: Boolean, default: false },
+    },
     submittedAt: Date,
     reviewedAt: Date,
     rejectionReason: String,

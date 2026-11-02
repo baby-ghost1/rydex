@@ -120,6 +120,16 @@ export interface PartnerProfile {
     minimumFare?: number;
     waitingCharge?: number;
   };
+  preferences?: {
+    acceptRadiusKm?: number;
+    maxDestinationKm?: number;
+  };
+  currentLocation?: {
+    lat: number;
+    lng: number;
+    updatedAt: string;
+    isOnline: boolean;
+  };
   submittedAt?: string;
   reviewedAt?: string;
   rejectionReason?: string;

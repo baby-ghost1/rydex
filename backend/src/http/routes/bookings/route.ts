@@ -155,6 +155,7 @@ export async function POST(request: Request) {
       { label: "View request", url: `${process.env.AUTH_URL || "http://localhost:3000"}/dashboard/partner/requests` },
     ).catch(console.warn);
 
+    // Standard booking notification
     emitSocketEvent(userRoom(String(owner._id)), "booking:new", {
       bookingId: String(booking._id),
       vehicle: vehicle.name,
@@ -162,6 +163,31 @@ export async function POST(request: Request) {
       pickup: data.pickup.address,
       drop: data.drop.address,
     });
+
+    // Flash notification for partner with full ride details
+    emitSocketEvent(userRoom(String(owner._id)), "ride:request", {
+      bookingId: String(booking._id),
+      vehicle: {
+        name: vehicle.name,
+        category: vehicle.category,
+        image: vehicle.image,
+        registrationNumber: vehicle.registrationNumber,
+      },
+      rider: {
+        name: user.name,
+        phone: user.phone,
+        rating: 5, // TODO: add rider rating
+      },
+      pickup: data.pickup,
+      drop: data.drop,
+      distanceKm: route.distanceKm,
+      durationMin: route.durationMin,
+      fare: fare.total,
+      partnerEarning: fare.partnerEarning,
+      paymentMethod: data.paymentMethod,
+      requestedAt: new Date().toISOString(),
+    });
+
     const admins = await User.find({ role: "admin" }).select("_id").lean();
     for (const admin of admins) {
       emitSocketEvent(userRoom(String(admin._id)), "booking:new", {

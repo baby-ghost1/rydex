@@ -30,12 +30,17 @@
   --color-warning-on-dark: #f7c873;
 
   --animate-fade-up: fade-up 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-slide-up: slide-up 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-float: float 5s ease-in-out infinite;
   --animate-pulse-soft: pulse-soft 2.4s ease-in-out infinite;
 }
 
 @keyframes fade-up {
   from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(40px); }
   to { opacity: 1; transform: translateY(0); }
 }
 @keyframes float {

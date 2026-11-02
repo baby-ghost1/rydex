@@ -29,6 +29,9 @@ function secretMatches(candidate: unknown) {
   return supplied.length === expected.length && timingSafeEqual(supplied, expected);
 }
 
+// Track online partners: partnerId -> { socketId, lat, lng, joinedAt }
+const onlinePartners = new Map<string, { socketId: string; lat: number; lng: number; joinedAt: number }>();
+
 const httpServer = createServer((req, res) => {
   if (req.method === "GET" && req.url === "/health") {
     res.writeHead(200, {
@@ -40,6 +43,7 @@ const httpServer = createServer((req, res) => {
         ok: true,
         service: "rydex-socket",
         connections: io.engine.clientsCount,
+        onlinePartners: onlinePartners.size,
         at: new Date().toISOString(),
       }),
     );
@@ -105,15 +109,54 @@ io.use((socket, next) => {
 io.on("connection", (socket) => {
   const userId = socket.data.userId as string;
   const bookingId = socket.data.bookingId as string | null;
+
   socket.join(`user:${userId}`);
   if (bookingId) socket.join(`booking:${bookingId}`);
 
   socket.emit("socket:ready", { userId, bookingId, at: new Date().toISOString() });
 
+  // Partner joins the online partners room
+  socket.on("partner:join", (data: { lat: number; lng: number } | null) => {
+    if (data?.lat && data?.lng) {
+      onlinePartners.set(userId, { socketId: socket.id, lat: data.lat, lng: data.lng, joinedAt: Date.now() });
+      socket.join("partners:online");
+    }
+  });
+
+  // Partner updates location
+  socket.on("partner:location", (data: { lat: number; lng: number }) => {
+    const existing = onlinePartners.get(userId);
+    if (existing) {
+      onlinePartners.set(userId, { ...existing, lat: data.lat, lng: data.lng, joinedAt: Date.now() });
+    }
+  });
+
+  // Partner goes offline
+  socket.on("partner:leave", () => {
+    onlinePartners.delete(userId);
+    socket.leave("partners:online");
+  });
+
+  // Handle disconnect
+  socket.on("disconnect", () => {
+    onlinePartners.delete(userId);
+  });
+
   socket.on("ping", (callback?: () => void) => {
     if (typeof callback === "function") callback();
   });
 });
+
+// Cleanup stale partners every 30 seconds
+setInterval(() => {
+  const now = Date.now();
+  const STALE_MS = 60_000; // 1 minute
+  for (const [partnerId, data] of onlinePartners.entries()) {
+    if (now - data.joinedAt > STALE_MS) {
+      onlinePartners.delete(partnerId);
+    }
+  }
+}, 30_000);
 
 httpServer.listen(PORT, () => {
   console.log(`[socket] RYDEX realtime server listening on :${PORT}`);
