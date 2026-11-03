@@ -72,7 +72,6 @@ const PartnerProfileSchema = new Schema<PartnerProfile>(
     },
     preferences: {
       acceptRadiusKm: { type: Number, default: 10, min: 1, max: 100 },
-      maxDestinationKm: { type: Number, default: 50, min: 5, max: 500 },
     },
     currentLocation: {
       lat: Number,

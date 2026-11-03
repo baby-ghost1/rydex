@@ -29,7 +29,6 @@ const SEND_INTERVAL_MS = 20_000;
 
 interface Preferences {
   acceptRadiusKm: number;
-  maxDestinationKm: number;
 }
 
 interface PartnerPresenceValue {
@@ -63,8 +62,8 @@ export default function PartnerPresenceProvider({ children }: { children: ReactN
   const [resuming, setResuming] = useState(false);
   const [starting, setStarting] = useState(false);
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
-  const [preferences, setPreferences] = useState<Preferences>({ acceptRadiusKm: 10, maxDestinationKm: 50 });
-  const [draft, setDraft] = useState<Preferences>({ acceptRadiusKm: 10, maxDestinationKm: 50 });
+  const [preferences, setPreferences] = useState<Preferences>({ acceptRadiusKm: 10 });
+  const [draft, setDraft] = useState<Preferences>({ acceptRadiusKm: 10 });
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [request, setRequest] = useState<RideRequestPayload | null>(null);
@@ -186,7 +185,11 @@ export default function PartnerPresenceProvider({ children }: { children: ReactN
       if (permission === "granted" && document.hidden) {
         // Nothing else to do here; the banner covers the visible tab.
       }
-      if (!startWatching()) return;
+      if (!startWatching()) {
+        setOnline(false);
+        localStorage.setItem(STORAGE_KEY, "0");
+        return;
+      }
       setOnline(true);
       localStorage.setItem(STORAGE_KEY, "1");
       startHeartbeat();
@@ -225,7 +228,6 @@ export default function PartnerPresenceProvider({ children }: { children: ReactN
       .then((data) => {
         const next = {
           acceptRadiusKm: data.preferences?.acceptRadiusKm || 10,
-          maxDestinationKm: data.preferences?.maxDestinationKm || 50,
         };
         setPreferences(next);
         setDraft(next);
@@ -352,7 +354,7 @@ export default function PartnerPresenceProvider({ children }: { children: ReactN
           How far will you go?
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-fg-muted">
-          You&apos;ll only see requests from riders inside your pickup radius and with a drop inside your journey limit.
+          You&apos;ll only see requests from riders whose pickup is inside your radius.
         </p>
 
         <div className="mt-5 space-y-5">
@@ -371,23 +373,6 @@ export default function PartnerPresenceProvider({ children }: { children: ReactN
               className="mt-2 w-full accent-ink"
             />
             <span className="mt-1 block text-[10px] text-fg-subtle">Riders whose pickup is within this distance.</span>
-          </label>
-
-          <label className="block">
-            <span className="flex items-center justify-between text-xs font-semibold">
-              <span>Destination limit</span>
-              <span className="text-fg-muted">{draft.maxDestinationKm} km</span>
-            </span>
-            <input
-              type="range"
-              min={5}
-              max={200}
-              step={5}
-              value={draft.maxDestinationKm}
-              onChange={(event) => setDraft((current) => ({ ...current, maxDestinationKm: Number(event.target.value) }))}
-              className="mt-2 w-full accent-ink"
-            />
-            <span className="mt-1 block text-[10px] text-fg-subtle">Drop points farther than this are filtered out.</span>
           </label>
         </div>
 
@@ -437,7 +422,22 @@ export default function PartnerPresenceProvider({ children }: { children: ReactN
 
 export function PartnerPresenceCard({ className }: { className?: string }) {
   const presence = usePartnerPresence();
-  if (!presence) return null;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!presence || !mounted) {
+    // Match the server render exactly (and never flash "You're offline" before
+    // the resume effect runs) — show a neutral skeleton until mounted.
+    return (
+      <div
+        aria-hidden="true"
+        className={cn("h-[92px] animate-pulse rounded-2xl border border-line bg-surface-muted/60", className)}
+      />
+    );
+  }
   const { online, starting, resuming, connected, position, preferences, toggleOnline, openSettings } = presence;
   const connecting = starting || resuming;
 
@@ -500,14 +500,9 @@ export function PartnerPresenceCard({ className }: { className?: string }) {
           onClick={openSettings}
           className="inline-flex items-center gap-1 rounded-full border border-line px-2 py-1 font-semibold text-fg-muted transition hover:border-line-strong hover:text-ink"
         >
-          <Settings2 className="h-3 w-3" /> {preferences.acceptRadiusKm} km
+          <Settings2 className="h-3 w-3" /> {preferences.acceptRadiusKm} km radius
         </button>
       </div>
-
-      <p className="mt-2 text-[9px] leading-relaxed text-fg-subtle">
-        Keep this dashboard tab open to stay online. Accepting up to {preferences.acceptRadiusKm} km away,
-        destinations up to {preferences.maxDestinationKm} km.
-      </p>
     </div>
   );
 }

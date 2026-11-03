@@ -44,7 +44,7 @@ export async function GET(request: Request) {
 
     const [route, eligible] = await Promise.all([
       getRoadRoute(pickup, drop),
-      findEligibleVehicles({ lat, lng, category, dropLat, dropLng, maxDistanceKm }),
+      findEligibleVehicles({ lat, lng, category, maxDistanceKm }),
     ]);
 
     const groups = new Map<VehicleCategory, CategoryGroup>();

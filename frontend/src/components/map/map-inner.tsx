@@ -60,14 +60,14 @@ function Fitter({ points, route, fit }: { points: MapPoint[]; route: Array<[numb
   const map = useMap();
   const didFit = useRef(false);
   useEffect(() => {
-    const timer = setTimeout(() => {
+    // whenReady guarantees the map pane exists; retry safely afterwards.
+    map.whenReady(() => {
       try {
         map.invalidateSize();
       } catch {
-        // The map may be torn down before this fires; not fatal.
+        // The map may be torn down already; not fatal.
       }
-    }, 120);
-    return () => clearTimeout(timer);
+    });
   }, [map]);
 
   useEffect(() => {
@@ -114,6 +114,9 @@ export default function MapInner({
         dragging={interactive}
         zoomControl={interactive}
         attributionControl
+        zoomAnimation={false}
+        markerZoomAnimation={false}
+        fadeAnimation={false}
         style={{ height: "100%", width: "100%", minHeight: "inherit" }}
       >
         <TileLayer

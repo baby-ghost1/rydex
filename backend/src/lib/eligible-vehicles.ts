@@ -14,7 +14,6 @@ export interface PartnerProfileLike {
   businessName?: string;
   preferences?: {
     acceptRadiusKm?: number;
-    maxDestinationKm?: number;
   };
   currentLocation?: {
     lat?: number;
@@ -52,14 +51,13 @@ export interface EligibleVehicle {
 }
 
 /**
- * Checks the partner's online presence, location freshness, pickup radius and
- * destination limit. Shared by nearby search, ride options and broadcast queues
- * so every surface uses exactly the same eligibility rules.
+ * Checks the partner's online presence, location freshness and pickup radius.
+ * Shared by nearby search, ride options and broadcast queues so every surface
+ * uses exactly the same eligibility rules.
  */
 export function partnerAvailableFor(
   profile: PartnerProfileLike | undefined,
   pickup?: Coordinates,
-  drop?: Coordinates,
 ) {
   const location = profile?.currentLocation;
   if (!location?.isOnline) return false;
@@ -79,11 +77,6 @@ export function partnerAvailableFor(
     if (distanceToPickup > acceptRadiusKm) return false;
   }
 
-  if (pickup && drop) {
-    const maxDestinationKm = profile?.preferences?.maxDestinationKm || 50;
-    if (estimateDistanceKm(pickup, drop) > maxDestinationKm) return false;
-  }
-
   return true;
 }
 
@@ -91,15 +84,11 @@ export async function findEligibleVehicles({
   lat,
   lng,
   category,
-  dropLat,
-  dropLng,
   maxDistanceKm = 15,
 }: {
   lat: number;
   lng: number;
   category?: VehicleCategory;
-  dropLat?: number;
-  dropLng?: number;
   maxDistanceKm?: number;
 }): Promise<EligibleVehicle[]> {
   await connectDB();
@@ -115,13 +104,12 @@ export async function findEligibleVehicles({
     .lean()) as unknown as EligibleVehicleDoc[];
 
   const pickup = { lat, lng };
-  const drop = dropLat !== undefined && dropLng !== undefined ? { lat: dropLat, lng: dropLng } : undefined;
 
   const eligible: EligibleVehicle[] = [];
   for (const vehicle of vehicles) {
     const owner = vehicle.owner;
     if (!owner) continue;
-    if (!partnerAvailableFor(owner.partnerProfile, pickup, drop)) continue;
+    if (!partnerAvailableFor(owner.partnerProfile, pickup)) continue;
 
     const location = owner.partnerProfile?.currentLocation;
     if (!location || typeof location.lat !== "number" || typeof location.lng !== "number") continue;

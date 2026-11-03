@@ -480,4 +480,8 @@
   .no-print {
     display: none !important;
   }
+  [data-sonner-toaster],
+  [role="dialog"] {
+    display: none !important;
+  }
 }

@@ -96,7 +96,7 @@ export async function GET(request: Request) {
       const wantsPending = statuses.length === 0 || statuses.includes("pending");
       const profile = user.partnerProfile as unknown as {
         currentLocation?: { lat?: number; lng?: number; updatedAt?: Date; isOnline?: boolean };
-        preferences?: { acceptRadiusKm?: number; maxDestinationKm?: number };
+        preferences?: { acceptRadiusKm?: number };
       };
 
       if (wantsPending && categories.length && partnerAvailableFor(profile)) {
@@ -114,7 +114,7 @@ export async function GET(request: Request) {
           .lean();
 
         broadcasts = open.filter((booking) =>
-          partnerAvailableFor(profile, booking.pickup, booking.drop),
+          partnerAvailableFor(profile, booking.pickup),
         ) as unknown as Array<Record<string, unknown>>;
       }
 
@@ -331,8 +331,6 @@ export async function POST(request: Request) {
       lat: data.pickup.lat,
       lng: data.pickup.lng,
       category,
-      dropLat: data.drop.lat,
-      dropLng: data.drop.lng,
     });
     const candidates = eligible.filter((item) => String(item.owner._id) !== String(user._id));
     if (!candidates.length) {

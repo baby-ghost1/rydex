@@ -144,7 +144,6 @@ export interface PartnerProfile {
   };
   preferences?: {
     acceptRadiusKm?: number;
-    maxDestinationKm?: number;
   };
   currentLocation?: {
     lat: number;

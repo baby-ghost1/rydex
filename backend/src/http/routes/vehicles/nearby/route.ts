@@ -3,19 +3,12 @@ import { z } from "zod";
 import { parsePagination, handleApiError, jsonError } from "@rydex/backend/lib/auth-helpers";
 import { findEligibleVehicles } from "@rydex/backend/lib/eligible-vehicles";
 
-const schema = z
-  .object({
-    lat: z.coerce.number().min(-90).max(90),
-    lng: z.coerce.number().min(-180).max(180),
-    category: z.enum(["bike", "car", "auto", "loading", "truck"]).optional(),
-    dropLat: z.coerce.number().min(-90).max(90).optional(),
-    dropLng: z.coerce.number().min(-180).max(180).optional(),
-    maxDistanceKm: z.coerce.number().min(1).max(100).optional().default(15),
-  })
-  .refine((value) => (value.dropLat === undefined) === (value.dropLng === undefined), {
-    message: "Both drop coordinates are required.",
-    path: ["dropLng"],
-  });
+const schema = z.object({
+  lat: z.coerce.number().min(-90).max(90),
+  lng: z.coerce.number().min(-180).max(180),
+  category: z.enum(["bike", "car", "auto", "loading", "truck"]).optional(),
+  maxDistanceKm: z.coerce.number().min(1).max(100).optional().default(15),
+});
 
 export async function GET(request: Request) {
   try {
@@ -31,20 +24,16 @@ export async function GET(request: Request) {
       lat: latParam,
       lng: lngParam,
       category: searchParams.get("category") || undefined,
-      dropLat: searchParams.get("dropLat") || undefined,
-      dropLng: searchParams.get("dropLng") || undefined,
       maxDistanceKm: searchParams.get("maxDistanceKm") || undefined,
     });
 
     if (!parsed.success) return jsonError("Invalid location parameters.", 422);
 
-    const { lat, lng, category, dropLat, dropLng, maxDistanceKm } = parsed.data;
+    const { lat, lng, category, maxDistanceKm } = parsed.data;
     const eligible = await findEligibleVehicles({
       lat,
       lng,
       category,
-      dropLat,
-      dropLng,
       maxDistanceKm,
     });
 
@@ -60,7 +49,6 @@ export async function GET(request: Request) {
         partnerProfile: {
           businessName: owner.partnerProfile?.businessName,
           acceptRadiusKm: owner.partnerProfile?.preferences?.acceptRadiusKm,
-          maxDestinationKm: owner.partnerProfile?.preferences?.maxDestinationKm,
         },
       },
       distanceToPickupKm,

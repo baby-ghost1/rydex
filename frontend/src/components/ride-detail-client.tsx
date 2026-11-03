@@ -32,6 +32,7 @@ import ChatDrawer, { type ChatMessage } from "@/components/chat-drawer";
 import OtpInput from "@/components/otp-input";
 import RatingStars from "@/components/rating-stars";
 import Modal from "@/components/ui/modal";
+import PrintReceipt from "@/components/print-receipt";
 import { useBookingSocket, type LiveEvent } from "@/hooks/use-booking-socket";
 import { api } from "@/lib/client-api";
 import { CATEGORY_MAP } from "@rydex/shared/constants";
@@ -439,7 +440,8 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
   const isTerminalBad = ["rejected", "cancelled"].includes(ride.status);
 
   return (
-    <div className="mx-auto max-w-7xl px-5 pb-20 sm:px-8 print:max-w-none">
+    <>
+    <div className="mx-auto max-w-7xl px-5 pb-20 sm:px-8 print:hidden">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Link
           href={isPartner ? "/dashboard/partner/rides" : "/bookings"}
@@ -921,6 +923,8 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
         </button>
       </Modal>
     </div>
+    <PrintReceipt ride={ride} />
+    </>
   );
 }
 
