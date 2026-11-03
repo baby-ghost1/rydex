@@ -28,11 +28,12 @@ import StatusBadge from "@/components/status-badge";
 import Modal from "@/components/ui/modal";
 import { api } from "@/lib/client-api";
 import { CATEGORY_MAP } from "@rydex/shared/constants";
-import { cn, formatDate, initials, inr, timeAgo } from "@rydex/shared/utils";
+import { cn, formatDate, initials, inr, resolveBookingCode, timeAgo } from "@rydex/shared/utils";
 import type { VehicleCategory } from "@rydex/shared/types";
 
 interface RequestRide {
   _id: string;
+  bookingCode?: string;
   status: string;
   paymentMethod: "cash" | "online";
   paymentStatus: "pending" | "paid" | "refunded" | "failed";
@@ -207,7 +208,7 @@ export default function PartnerRequests() {
                     <span className="text-[10px] text-fg-subtle">requested {timeAgo(ride.createdAt)}</span>
                   </div>
                   <span className="text-[10px] font-semibold text-fg-muted">
-                    #{ride._id.slice(-8).toUpperCase()}
+                    {resolveBookingCode(ride)}
                   </span>
                 </div>
 

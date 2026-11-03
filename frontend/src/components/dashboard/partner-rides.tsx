@@ -19,10 +19,11 @@ import {
 import { PageHeader } from "@/components/dashboard/ui";
 import StatusBadge from "@/components/status-badge";
 import { api } from "@/lib/client-api";
-import { cn, formatDate, inr } from "@rydex/shared/utils";
+import { cn, formatDate, inr, resolveBookingCode } from "@rydex/shared/utils";
 
 interface RideRow {
   _id: string;
+  bookingCode?: string;
   status: string;
   paymentMethod: "cash" | "online";
   paymentStatus: string;
@@ -207,7 +208,7 @@ export default function PartnerRides() {
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <StatusBadge status={ride.status} dot={false} className="!px-2 !py-0.5 !text-[10px]" />
-                  <span className="text-[10px] text-fg-subtle">#{ride._id.slice(-8).toUpperCase()}</span>
+                  <span className="text-[10px] text-fg-subtle">{resolveBookingCode(ride)}</span>
                   {ride.paymentMethod === "online" && ride.paymentStatus === "pending" && ride.status === "pending" && (
                     <span className="text-[10px] font-semibold text-warning">Payment pending</span>
                   )}

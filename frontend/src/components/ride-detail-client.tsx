@@ -36,7 +36,7 @@ import PrintReceipt from "@/components/print-receipt";
 import { useBookingSocket, type LiveEvent } from "@/hooks/use-booking-socket";
 import { api } from "@/lib/client-api";
 import { CATEGORY_MAP } from "@rydex/shared/constants";
-import { cn, formatDate, initials, inr, timeAgo } from "@rydex/shared/utils";
+import { cn, formatDate, initials, inr, resolveBookingCode, timeAgo } from "@rydex/shared/utils";
 import type { BookingStatus, VehicleCategory } from "@rydex/shared/types";
 
 interface RideUser {
@@ -50,6 +50,7 @@ interface RideUser {
 
 interface Ride {
   _id: string;
+  bookingCode?: string;
   status: BookingStatus;
   paymentMethod: "cash" | "online";
   paymentStatus: "pending" | "paid" | "refunded" | "failed";
@@ -134,7 +135,7 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
   const [actionLoading, setActionLoading] = useState("");
   const [sharing, setSharing] = useState(false);
   const [shareError, setShareError] = useState("");
-  const [config, setConfig] = useState<{ razorpayEnabled: boolean } | null>(null);
+  const [config, setConfig] = useState<{ razorpayEnabled: boolean; appUrl?: string } | null>(null);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const lastLocationSent = useRef(0);
 
@@ -160,6 +161,37 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
       .then(setConfig)
       .catch(() => {});
   }, [fetchRide]);
+
+  const bookingCode = ride ? resolveBookingCode(ride) : "";
+
+  // Browsers name the printed file after document.title, so swap in the booking
+  // code while the print dialog is open and restore the page title afterwards.
+  useEffect(() => {
+    if (!bookingCode) return;
+    const originalTitle = document.title;
+    const useBookingCode = () => {
+      document.title = bookingCode;
+    };
+    const restoreTitle = () => {
+      document.title = originalTitle;
+    };
+    window.addEventListener("beforeprint", useBookingCode);
+    window.addEventListener("afterprint", restoreTitle);
+    return () => {
+      window.removeEventListener("beforeprint", useBookingCode);
+      window.removeEventListener("afterprint", restoreTitle);
+    };
+  }, [bookingCode]);
+
+  const printReceipt = useCallback(() => {
+    if (!bookingCode) return;
+    const originalTitle = document.title;
+    document.title = bookingCode;
+    window.print();
+    window.setTimeout(() => {
+      document.title = originalTitle;
+    }, 400);
+  }, [bookingCode]);
 
   // Refresh ride data only when the server tells us there is an update.
   const { connected: socketConnected, socket } = useBookingSocket(bookingId, (event) => {
@@ -490,7 +522,7 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
                         : `${ride.vehicle?.name || "Your ride"}.`}
           </h1>
           <p className="mt-2 text-xs text-fg-muted">
-            Booking #{ride._id.slice(-8).toUpperCase()} · {formatDate(ride.createdAt, true)}
+            Booking {bookingCode} · {formatDate(ride.createdAt, true)}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -728,7 +760,7 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
             />
           )}
 
-          {ride.status === "completed" && <div className="no-print flex justify-end"><button type="button" onClick={() => window.print()} className="btn-outline !py-2.5"><Printer className="h-4 w-4" /> Print receipt</button></div>}
+          {ride.status === "completed" && <div className="no-print flex justify-end"><button type="button" onClick={printReceipt} className="btn-outline !py-2.5"><Printer className="h-4 w-4" /> Print receipt</button></div>}
         </div>
 
         <aside className="space-y-5 lg:sticky lg:top-28 lg:self-start">
@@ -923,7 +955,7 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
         </button>
       </Modal>
     </div>
-    <PrintReceipt ride={ride} />
+    <PrintReceipt ride={ride} appUrl={config?.appUrl} />
     </>
   );
 }

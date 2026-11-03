@@ -61,6 +61,11 @@ export async function GET(request: Request) {
         { date: { $regex: safe, $options: "i" } },
       );
       if (/^[a-f0-9]{24}$/i.test(q)) searchOr.push({ _id: q });
+      // Booking codes look like #RY031120261722055A74 - allow searching with or without the #.
+      const codeQuery = q.replace(/^#/, "");
+      if (/^ry/i.test(codeQuery)) {
+        searchOr.push({ bookingCode: { $regex: safe.replace(/^#/, ""), $options: "i" } });
+      }
     }
 
     const applyCommonFilters = (filter: Record<string, unknown>) => {

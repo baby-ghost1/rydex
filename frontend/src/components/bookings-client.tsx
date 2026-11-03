@@ -19,10 +19,11 @@ import { useAppDispatch } from "@/redux/hooks";
 import { openAuthModal } from "@/redux/uiSlice";
 import { api } from "@/lib/client-api";
 import { CATEGORY_MAP } from "@rydex/shared/constants";
-import { formatDate, inr, cn } from "@rydex/shared/utils";
+import { formatDate, inr, cn, resolveBookingCode } from "@rydex/shared/utils";
 
 interface BookingRow {
   _id: string;
+  bookingCode?: string;
   status: string;
   paymentStatus: string;
   paymentMethod: string;
@@ -203,6 +204,9 @@ export default function BookingsClient() {
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <StatusBadge status={booking.status} />
+                    <span className="font-mono text-[10px] tracking-tight text-fg-subtle">
+                      {resolveBookingCode(booking)}
+                    </span>
                     {booking.paymentMethod === "online" && booking.paymentStatus !== "paid" && booking.status === "pending" && (
                       <span className="inline-flex items-center gap-1 rounded-full bg-warning/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide text-warning">
                         <CreditCard className="h-3 w-3" /> Payment pending

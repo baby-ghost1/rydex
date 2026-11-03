@@ -27,7 +27,7 @@ import {
 } from "@/components/dashboard/admin-shared";
 import StatusBadge from "@/components/status-badge";
 import { api } from "@/lib/client-api";
-import { cn, formatDate, inr, timeAgo } from "@rydex/shared/utils";
+import { cn, formatDate, inr, resolveBookingCode, timeAgo } from "@rydex/shared/utils";
 import type { PartnerStatus } from "@rydex/shared/types";
 
 interface AdminStats {
@@ -73,6 +73,7 @@ interface VendorLite {
 
 interface BookingLite {
   _id: string;
+  bookingCode?: string;
   status: string;
   paymentMethod: string;
   paymentStatus: string;
@@ -257,7 +258,7 @@ export default function AdminOverview() {
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <StatusBadge status={booking.status} dot={false} className="!px-2 !py-0.5 !text-[10px]" />
-                        <span className="text-[10px] text-fg-subtle">#{booking._id.slice(-6).toUpperCase()}</span>
+                        <span className="text-[10px] text-fg-subtle">{resolveBookingCode(booking)}</span>
                         <span className="text-[10px] text-fg-subtle">{timeAgo(booking.createdAt)}</span>
                       </div>
                       <p className="mt-1 truncate text-xs font-semibold">

@@ -1,5 +1,6 @@
 import mongoose, { Schema, model, models } from "mongoose";
 import type { BookingStatus, PaymentMethod, PaymentStatus, VehicleCategory } from "@rydex/shared/types";
+import { newBookingCode } from "@rydex/backend/lib/booking-code";
 
 export interface IBookingMessage {
   _id?: mongoose.Types.ObjectId;
@@ -16,6 +17,7 @@ export interface IBookingDecline {
 
 export interface IBooking {
   _id: mongoose.Types.ObjectId;
+  bookingCode?: string;
   user: mongoose.Types.ObjectId;
   partner: mongoose.Types.ObjectId | null;
   vehicle: mongoose.Types.ObjectId | null;
@@ -102,6 +104,7 @@ const DeclineSchema = new Schema<IBookingDecline>(
 const BookingSchema = new Schema<IBooking>(
   {
     user: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
+    bookingCode: { type: String, index: true },
     partner: { type: Schema.Types.ObjectId, ref: "User", default: null, index: true },
     vehicle: { type: Schema.Types.ObjectId, ref: "Vehicle", default: null },
     category: {
@@ -161,5 +164,24 @@ const BookingSchema = new Schema<IBooking>(
 BookingSchema.index({ user: 1, createdAt: -1 });
 BookingSchema.index({ partner: 1, status: 1, createdAt: -1 });
 BookingSchema.index({ status: 1, category: 1, partner: 1, createdAt: -1 });
+
+/** Every booking gets a human readable reference (#RY031120261722055A74). */
+BookingSchema.pre("validate", async function assignBookingCode() {
+  if (this.bookingCode) return;
+  const BookingModel = models.Booking as mongoose.Model<IBooking> | undefined;
+  // Older bookings keep the date they were created on, not the date they were touched.
+  const stamp = this.createdAt || new Date();
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const candidate = newBookingCode(stamp);
+    const exists = BookingModel
+      ? await BookingModel.exists({ bookingCode: candidate })
+      : null;
+    if (!exists) {
+      this.bookingCode = candidate;
+      return;
+    }
+  }
+  this.bookingCode = newBookingCode(stamp);
+});
 
 export const Booking = models.Booking || model<IBooking>("Booking", BookingSchema);

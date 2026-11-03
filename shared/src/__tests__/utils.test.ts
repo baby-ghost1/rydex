@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
+  bookingCodeFor,
   cn,
+  formatBookingCode,
   formatDate,
   haversineKm,
   initials,
   inr,
   maskAccount,
+  resolveBookingCode,
   rupeesToPaise,
   serialize,
   truncate,
@@ -50,6 +53,29 @@ describe("formatting helpers", () => {
     expect(rupeesToPaise(12.34)).toBe(1234);
     expect(rupeesToPaise(0.1)).toBe(10);
     expect(serialize({ ok: true, nested: { id: 1 } })).toEqual({ ok: true, nested: { id: 1 } });
+  });
+});
+
+describe("booking codes", () => {
+  it("builds #RY + date + time + unique with no separators", () => {
+    // 2026-11-03 17:22:05 IST
+    const code = formatBookingCode(new Date("2026-11-03T11:52:05.000Z"), "5a74");
+    expect(code).toBe("#RY031120261722055A74");
+    expect(code).not.toContain("-");
+  });
+
+  it("derives a stable code for records without one", () => {
+    const code = bookingCodeFor("2026-11-03T11:52:05.000Z", "6ae9b3908465d4a29f4b4795");
+    expect(code).toBe("#RY031120261722054795");
+    expect(bookingCodeFor("2026-11-03T11:52:05.000Z", "6ae9b3908465d4a29f4b4795")).toBe(code);
+  });
+
+  it("prefers the stored code and always keeps the hash prefix", () => {
+    expect(resolveBookingCode({ bookingCode: "#RY031120261722055A74" })).toBe("#RY031120261722055A74");
+    expect(resolveBookingCode({ bookingCode: "RY031120261722055A74" })).toBe("#RY031120261722055A74");
+    expect(resolveBookingCode({ createdAt: "2026-11-03T11:52:05.000Z", _id: "abc4795" })).toBe(
+      "#RY031120261722054795",
+    );
   });
 });
 

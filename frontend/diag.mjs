@@ -1,0 +1,18 @@
+import { chromium } from "@playwright/test";
+const BASE = process.env.SIM_BASE_URL || "http://localhost:3100";
+const BOOKING = process.argv[2] || "6ae9b3908465d4a29f4b4795";
+const browser = await chromium.launch();
+const page = await browser.newPage({ viewport: { width: 794, height: 1123 } });
+page.on("pageerror", (e) => console.log("PAGEERROR:", e.message));
+await page.goto(`${BASE}/login`, { waitUntil: "domcontentloaded" });
+await page.locator("#auth-email").fill("rider@rydex.app");
+await page.locator("#auth-password").fill("Rider@12345");
+await page.locator('button[type="submit"]').click();
+await page.waitForURL(/\/dashboard/, { timeout: 45_000 });
+await page.goto(`${BASE}/bookings/${BOOKING}`, { waitUntil: "domcontentloaded" });
+await page.waitForTimeout(4000);
+await page.emulateMedia({ media: "print" });
+await page.waitForTimeout(400);
+console.log("qr svg count:", await page.locator("svg.qrcode, svg[width='112'], canvas").count());
+await page.screenshot({ path: "sim-shots/receipt-qr.png", fullPage: true });
+await browser.close();

@@ -50,6 +50,52 @@ export function haversineKm(a: { lat: number; lng: number }, b: { lat: number; l
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 
+/** India Standard Time (UTC+5:30) offset used across the app. */
+export const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+
+/**
+ * Human friendly booking reference: #RY + ddmmyyyy + hhmmss + unique.
+ * Example: #RY031120261722055A74
+ */
+export function formatBookingCode(date: Date | string, unique: string | number) {
+  const parsed = date instanceof Date ? date : new Date(date);
+  const stamp = Number.isNaN(parsed.getTime()) ? new Date() : parsed;
+  const ist = new Date(stamp.getTime() + IST_OFFSET_MS);
+  const pad = (value: number) => String(value).padStart(2, "0");
+  const day = pad(ist.getUTCDate());
+  const month = pad(ist.getUTCMonth() + 1);
+  const year = ist.getUTCFullYear();
+  const hours = pad(ist.getUTCHours());
+  const minutes = pad(ist.getUTCMinutes());
+  const seconds = pad(ist.getUTCSeconds());
+  const suffix = String(unique)
+    .replace(/[^a-z0-9]/gi, "")
+    .toUpperCase()
+    .padStart(4, "0")
+    .slice(-4);
+  return `#RY${day}${month}${year}${hours}${minutes}${seconds}${suffix}`;
+}
+
+/**
+ * Deterministic booking reference for records created before codes were stored.
+ * Uses the tail of the mongo id so every booking still has a unique reference.
+ */
+export function bookingCodeFor(createdAt?: string | Date, id?: string) {
+  const unique = (id || "").slice(-4).toUpperCase() || "0000";
+  return formatBookingCode(createdAt || new Date(), unique);
+}
+
+/** Picks the stored booking code, falling back to a derived one for older rides. */
+export function resolveBookingCode(booking: {
+  bookingCode?: string | null;
+  createdAt?: string | Date;
+  _id?: string;
+}) {
+  const stored = booking.bookingCode?.trim();
+  if (!stored) return bookingCodeFor(booking.createdAt, booking._id);
+  return stored.startsWith("#") ? stored : `#${stored.replace(/^RY/i, "RY")}`;
+}
+
 export function initials(name?: string | null) {
   if (!name) return "R";
   return name

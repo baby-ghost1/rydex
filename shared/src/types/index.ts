@@ -56,6 +56,7 @@ export interface RideOptionDTO {
 
 export interface BookingDTO {
   _id: string;
+  bookingCode?: string;
   user: { _id: string; name: string; email: string; phone?: string; image?: string } | string;
   partner:
     | { _id: string; name: string; email: string; phone?: string; image?: string }
