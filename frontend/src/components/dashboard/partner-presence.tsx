@@ -35,6 +35,7 @@ interface Preferences {
 interface PartnerPresenceValue {
   online: boolean;
   starting: boolean;
+  resuming: boolean;
   connected: boolean;
   position: { lat: number; lng: number } | null;
   preferences: Preferences;
@@ -59,6 +60,7 @@ export default function PartnerPresenceProvider({ children }: { children: ReactN
   const isPartner = session?.user?.role === "partner" && session.user.partnerStatus === "approved";
 
   const [online, setOnline] = useState(false);
+  const [resuming, setResuming] = useState(false);
   const [starting, setStarting] = useState(false);
   const [position, setPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [preferences, setPreferences] = useState<Preferences>({ acceptRadiusKm: 10, maxDestinationKm: 50 });
@@ -163,9 +165,14 @@ export default function PartnerPresenceProvider({ children }: { children: ReactN
       },
       (error) => {
         console.warn("[partner] geolocation error", error);
-        toast.error("Location permission is required to receive ride requests.");
-        setOnline(false);
-        localStorage.setItem(STORAGE_KEY, "0");
+        if (error.code === error.PERMISSION_DENIED) {
+          toast.error("Location permission is required to receive ride requests.");
+          setOnline(false);
+          localStorage.setItem(STORAGE_KEY, "0");
+          return;
+        }
+        // Timeouts/unavailability are usually transient — keep the partner online.
+        toast.error("Couldn't read your location just yet. We'll keep retrying.");
       },
       { enableHighAccuracy: true, maximumAge: 15_000, timeout: 20_000 },
     );
@@ -230,9 +237,18 @@ export default function PartnerPresenceProvider({ children }: { children: ReactN
   useEffect(() => {
     if (!isPartner) return;
     if (localStorage.getItem(STORAGE_KEY) !== "1") return;
+    setResuming(true);
     const timer = window.setTimeout(() => {
-      void goOnline();
-    }, 800);
+      void (async () => {
+        try {
+          await goOnline();
+        } catch {
+          // Keep the silent resume best-effort; the partner can retry with the toggle.
+        } finally {
+          setResuming(false);
+        }
+      })();
+    }, 300);
     return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPartner]);
@@ -304,6 +320,7 @@ export default function PartnerPresenceProvider({ children }: { children: ReactN
   const value: PartnerPresenceValue = {
     online,
     starting,
+    resuming,
     connected,
     position,
     preferences,
@@ -421,7 +438,8 @@ export default function PartnerPresenceProvider({ children }: { children: ReactN
 export function PartnerPresenceCard({ className }: { className?: string }) {
   const presence = usePartnerPresence();
   if (!presence) return null;
-  const { online, starting, connected, position, preferences, toggleOnline, openSettings } = presence;
+  const { online, starting, resuming, connected, position, preferences, toggleOnline, openSettings } = presence;
+  const connecting = starting || resuming;
 
   return (
     <div className={cn("rounded-2xl border border-line bg-surface p-3", className)}>
@@ -436,20 +454,22 @@ export function PartnerPresenceCard({ className }: { className?: string }) {
             {online ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4" />}
           </span>
           <div>
-            <p className="text-xs font-bold">{online ? "You're online" : "You're offline"}</p>
+            <p className="text-xs font-bold">{online ? "You're online" : connecting ? "Resuming…" : "You're offline"}</p>
             <p className="text-[10px] text-fg-subtle">
               {online
                 ? connected
                   ? "Receiving ride requests"
                   : "Connecting…"
-                : "Go online to get requests"}
+                : connecting
+                  ? "Restoring your session"
+                  : "Go online to get requests"}
             </p>
           </div>
         </div>
         <button
           type="button"
           onClick={toggleOnline}
-          disabled={starting}
+          disabled={connecting}
           className={cn(
             "relative h-7 w-12 shrink-0 rounded-full transition",
             online ? "bg-success" : "bg-line-strong",

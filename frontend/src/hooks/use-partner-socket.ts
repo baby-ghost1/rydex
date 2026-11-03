@@ -88,7 +88,8 @@ export function usePartnerSocket(
 
     return () => {
       cancelled = true;
-      activeSocket?.emit("partner:leave", null);
+      // The socket server clears temporary presence on disconnect; the partner
+      // stays online until they explicitly toggle offline.
       activeSocket?.disconnect();
       setSocket(null);
       setConnected(false);

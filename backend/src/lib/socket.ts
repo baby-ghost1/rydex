@@ -22,20 +22,22 @@ export function socketPublicUrl() {
   return `http://127.0.0.1:${process.env.SOCKET_PORT || 4001}`;
 }
 
-export function emitSocketEvent(room: string, event: string, payload: unknown) {
+export async function emitSocketEvent(room: string, event: string, payload: unknown) {
   const url = socketEmitUrl();
   if (!url) return;
-  fetch(`${url}/emit`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "x-socket-secret": internalSecret(),
-    },
-    body: JSON.stringify({ room, event, payload }),
-    signal: AbortSignal.timeout(2500),
-  }).catch((error) => {
+  try {
+    await fetch(`${url}/emit`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-socket-secret": internalSecret(),
+      },
+      body: JSON.stringify({ room, event, payload }),
+      signal: AbortSignal.timeout(2500),
+    });
+  } catch (error) {
     console.warn("[socket] emit skipped:", error instanceof Error ? error.message : error);
-  });
+  }
 }
 
 export function signSocketToken(userId: string, bookingId?: string) {

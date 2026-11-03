@@ -80,7 +80,7 @@ export default function PartnerRequests() {
 
   useEffect(() => {
     load();
-    const interval = setInterval(() => load(true), 12_000);
+    const interval = setInterval(() => load(true), 20_000);
     return () => clearInterval(interval);
   }, [load]);
 

@@ -73,7 +73,7 @@ export default function OtpInput({
     <div
       role="group"
       aria-label={label}
-      className="flex justify-between gap-2"
+      className="flex justify-center gap-2"
       onPaste={handlePaste}
     >
       {Array.from({ length }).map((_, index) => (
@@ -91,7 +91,7 @@ export default function OtpInput({
           disabled={disabled}
           aria-label={`Digit ${index + 1}`}
           className={cn(
-            "h-13 w-full min-w-0 rounded-xl border border-line bg-surface-muted/60 text-center text-xl font-bold text-ink outline-none transition focus:border-ink focus:bg-white focus:ring-4 focus:ring-ink/5",
+            "h-13 w-11 sm:w-12 rounded-xl border border-line bg-surface-muted/60 text-center text-xl font-bold text-ink outline-none transition focus:border-ink focus:bg-white focus:ring-4 focus:ring-ink/5",
             digits[index] && "border-line-strong bg-white",
           )}
         />

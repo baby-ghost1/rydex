@@ -46,7 +46,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     if (!parsed.success) return jsonError(parsed.error.issues[0]?.message || "Type a message.", 422);
 
     await connectDB();
-    const booking = await Booking.findById(id);
+    // Lean read for the access check — we don't need the whole document here.
+    const booking = await Booking.findById(id)
+      .select("user partner status")
+      .lean();
     if (!booking) return jsonError("Booking not found.", 404);
     if (
       String(booking.user) !== String(user._id) &&
@@ -59,17 +62,27 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return jsonError("This ride is closed. Chat is no longer available.", 409);
     }
 
-    booking.messages.push({ sender: user._id, text: parsed.data.text, createdAt: new Date() });
-    await booking.save();
-    const message = booking.messages[booking.messages.length - 1];
+    const createdAt = new Date();
+    const message = {
+      _id: new mongoose.Types.ObjectId(),
+      sender: user._id,
+      text: parsed.data.text,
+      createdAt,
+    };
+    // Single atomic write instead of loading/re-saving the whole document.
+    await Booking.updateOne(
+      { _id: id },
+      { $push: { messages: message }, $set: { updatedAt: createdAt } },
+    );
     const payload = {
       _id: String(message._id),
       sender: { _id: String(user._id), name: user.name, image: user.image || "", role: user.role },
       text: message.text,
-      createdAt: message.createdAt,
+      createdAt,
     };
-    emitSocketEvent(bookingRoom(String(booking._id)), "chat:message", {
-      bookingId: String(booking._id),
+    // Await the emit so serverless freezes don't drop the realtime delivery.
+    await emitSocketEvent(bookingRoom(String(id)), "chat:message", {
+      bookingId: String(id),
       message: payload,
     });
     return NextResponse.json({ ok: true, message: payload }, { status: 201 });

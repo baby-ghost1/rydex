@@ -34,7 +34,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
+    <html lang="en" className={`${inter.variable} ${poppins.variable}`} data-scroll-behavior="smooth">
       <body className="min-h-dvh antialiased">
         <Providers>{children}</Providers>
       </body>

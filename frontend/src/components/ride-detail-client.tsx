@@ -160,7 +160,8 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
       .catch(() => {});
   }, [fetchRide]);
 
-  const { socket } = useBookingSocket(bookingId, (event) => {
+  // Refresh ride data only when the server tells us there is an update.
+  const { connected: socketConnected, socket } = useBookingSocket(bookingId, (event) => {
     const payload = livePayload(event);
     if (event.event === "chat:message" && payload.message) {
       const message = payload.message;
@@ -191,12 +192,15 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
     }
   });
 
+  // Fall back to a slow poll only when the realtime connection is down, so the
+  // ride page stays usable without the constant re-fetching.
   useEffect(() => {
+    if (socketConnected) return;
     if (!ride) return;
     if (!["pending", "accepted", "arrived", "started"].includes(ride.status)) return;
-    const interval = setInterval(fetchRide, 20_000);
+    const interval = setInterval(fetchRide, 30_000);
     return () => clearInterval(interval);
-  }, [ride?.status, fetchRide]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [socketConnected, ride?.status, fetchRide]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!ride) return;

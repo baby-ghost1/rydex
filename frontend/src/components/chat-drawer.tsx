@@ -43,6 +43,9 @@ export default function ChatDrawer({
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [pending, setPending] = useState<ChatMessage[]>([]);
+  const pendingIdRef = useRef(0);
+  const allMessages = [...messages, ...pending];
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const panelRef = useRef<HTMLElement>(null);
@@ -111,13 +114,26 @@ export default function ChatDrawer({
         behavior: reduceMotion ? "auto" : "smooth",
       });
     }
-  }, [messages.length, open, reduceMotion]);
+  }, [messages.length, pending.length, open, reduceMotion]);
 
   async function send(value?: string) {
     const content = (value ?? text).trim();
     if (!content || sending) return;
-    setSending(true);
+    pendingIdRef.current += 1;
+    const optimistic: ChatMessage = {
+      _id: `pending-${pendingIdRef.current}`,
+      sender: {
+        _id: session?.user?.id || "",
+        name: session?.user?.name || "You",
+        image: session?.user?.image || "",
+        role: session?.user?.role,
+      },
+      text: content,
+      createdAt: new Date().toISOString(),
+    };
+    setPending((current) => [...current, optimistic]);
     setText("");
+    setSending(true);
     try {
       const data = await api<{ message: ChatMessage }>(
         `/api/bookings/${bookingId}/messages`,
@@ -126,8 +142,10 @@ export default function ChatDrawer({
           json: { text: content },
         },
       );
+      setPending((current) => current.filter((item) => item._id !== optimistic._id));
       onMessageSent(data.message);
     } catch (error) {
+      setPending((current) => current.filter((item) => item._id !== optimistic._id));
       setText(content);
       toast.error(
         error instanceof Error ? error.message : "Message could not be sent.",
@@ -195,7 +213,7 @@ export default function ChatDrawer({
             </div>
 
             <div className="flex-1 space-y-3 overflow-y-auto bg-surface-muted px-4 py-5">
-              {messages.length === 0 && (
+              {allMessages.length === 0 && (
                 <div className="mx-auto mt-10 max-w-[260px] text-center">
                   <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-line bg-surface shadow-sm">
                     <Send
@@ -213,7 +231,7 @@ export default function ChatDrawer({
                 </div>
               )}
 
-              {messages.map((message) => {
+              {allMessages.map((message) => {
                 const senderId =
                   typeof message.sender === "string"
                     ? message.sender

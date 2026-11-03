@@ -60,7 +60,13 @@ function Fitter({ points, route, fit }: { points: MapPoint[]; route: Array<[numb
   const map = useMap();
   const didFit = useRef(false);
   useEffect(() => {
-    const timer = setTimeout(() => map.invalidateSize(), 120);
+    const timer = setTimeout(() => {
+      try {
+        map.invalidateSize();
+      } catch {
+        // The map may be torn down before this fires; not fatal.
+      }
+    }, 120);
     return () => clearTimeout(timer);
   }, [map]);
 
@@ -70,8 +76,12 @@ function Fitter({ points, route, fit }: { points: MapPoint[]; route: Array<[numb
       ? route
       : points.map((p) => [p.lat, p.lng] as [number, number]);
     if (coords.length >= 2) {
-      map.fitBounds(L.latLngBounds(coords as L.LatLngExpression[]), { padding: [42, 42], maxZoom: 15 });
-      didFit.current = true;
+      try {
+        map.fitBounds(L.latLngBounds(coords as L.LatLngExpression[]), { padding: [42, 42], maxZoom: 15 });
+        didFit.current = true;
+      } catch {
+        // Map not ready yet; we'll retry on the next render.
+      }
     }
   }, [fit, map, points, route]);
 
@@ -120,7 +130,7 @@ export default function MapInner({
         )}
         {points.map((point, index) => (
           <Marker
-            key={`${point.kind}-${index}-${point.lat}-${point.lng}`}
+            key={point.kind || index}
             position={[point.lat, point.lng]}
             icon={pin(point.kind || "vehicle", point.label)}
           />
