@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import {
   AlertTriangle,
@@ -51,6 +52,7 @@ interface RequestRide {
 }
 
 export default function PartnerRequests() {
+  const router = useRouter();
   const { data: session } = useSession();
   const [rides, setRides] = useState<RequestRide[]>([]);
   const [loading, setLoading] = useState(true);
@@ -95,7 +97,8 @@ export default function PartnerRequests() {
     try {
       await api(`/api/bookings/${ride._id}`, { method: "PATCH", json: { status: "accepted" } });
       setRides((current) => current.filter((item) => item._id !== ride._id));
-      toast.success("Ride accepted — head to the pickup");
+      toast.success("Ride accepted — opening your ride");
+      router.push(`/bookings/${ride._id}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not accept the ride.");
       await load(true);

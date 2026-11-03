@@ -334,29 +334,6 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
     }
   }
 
-  async function resendOtp(type: "pickup" | "drop") {
-    setActionLoading(`otp-${type}`);
-    try {
-      const data = await api<{ otp: string }>(`/api/bookings/${bookingId}/otp`, {
-        method: "POST",
-        json: { type },
-      });
-      setRide((current) =>
-        current
-          ? {
-              ...current,
-              ...(type === "pickup" ? { pickupOtp: data.otp } : { dropOtp: data.otp }),
-            }
-          : current,
-      );
-      toast.success(`${type === "pickup" ? "Pickup" : "Drop"} OTP refreshed`);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not refresh the OTP.");
-    } finally {
-      setActionLoading("");
-    }
-  }
-
   function loadRazorpay(): Promise<boolean> {
     return new Promise((resolve) => {
       if (window.Razorpay) return resolve(true);
@@ -770,8 +747,8 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
                 <h2 className="font-display text-lg font-bold tracking-tight">Ride OTPs</h2>
               </div>
               <p className="mt-2 text-[11px] leading-relaxed text-fg-inverse-subtle">
-                These codes stay on this page. Share the pickup code when your partner arrives, and
-                the drop code when you reach your destination.
+                These codes stay the same for this ride — no refresh needed. Share the pickup code
+                when your partner arrives, and the drop code when you reach your destination.
               </p>
               <div className="mt-4 space-y-3">
                 <div className="rounded-2xl border border-white/10 bg-surface/5 p-3.5">
@@ -788,16 +765,6 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
                       </span>
                     )}
                   </div>
-                  {!ride.otpVerified.pickup && ["accepted", "arrived"].includes(ride.status) && (
-                    <button
-                      type="button"
-                      onClick={() => resendOtp("pickup")}
-                      disabled={actionLoading === "otp-pickup"}
-                      className="mt-1 inline-flex min-h-11 items-center text-xs font-semibold text-lime underline underline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      {actionLoading === "otp-pickup" ? "Refreshing…" : "Refresh code"}
-                    </button>
-                  )}
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-surface/5 p-3.5">
                   <div className="flex items-center justify-between gap-3">
@@ -819,16 +786,6 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
                       <span className="font-mono text-sm tracking-[0.3em] text-fg-inverse-subtle">••••</span>
                     )}
                   </div>
-                  {ride.status === "started" && !ride.otpVerified.drop && (
-                    <button
-                      type="button"
-                      onClick={() => resendOtp("drop")}
-                      disabled={actionLoading === "otp-drop"}
-                      className="mt-1 inline-flex min-h-11 items-center text-xs font-semibold text-lime underline underline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      {actionLoading === "otp-drop" ? "Refreshing…" : "Refresh code"}
-                    </button>
-                  )}
                 </div>
               </div>
             </section>

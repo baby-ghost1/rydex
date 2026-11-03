@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { Circle, LocateFixed, Loader2, Radio, Settings2, Wifi, WifiOff } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import Modal from "@/components/ui/modal";
@@ -53,6 +54,7 @@ export function usePartnerPresence() {
  * connection instead of creating duplicate watchers.
  */
 export default function PartnerPresenceProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const { data: session } = useSession();
   const isPartner = session?.user?.role === "partner" && session.user.partnerStatus === "approved";
 
@@ -269,7 +271,8 @@ export default function PartnerPresenceProvider({ children }: { children: ReactN
     try {
       await api(`/api/bookings/${bookingId}`, { method: "PATCH", json: { status: "accepted" } });
       setRequest(null);
-      toast.success("Ride accepted — head to the pickup.");
+      toast.success("Ride accepted — opening your ride.");
+      router.push(`/bookings/${bookingId}`);
     } catch (error) {
       if (error instanceof ClientApiError && error.status === 409) {
         setRequest(null);
