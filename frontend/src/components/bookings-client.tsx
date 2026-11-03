@@ -18,6 +18,7 @@ import StatusBadge from "@/components/status-badge";
 import { useAppDispatch } from "@/redux/hooks";
 import { openAuthModal } from "@/redux/uiSlice";
 import { api } from "@/lib/client-api";
+import { CATEGORY_MAP } from "@rydex/shared/constants";
 import { formatDate, inr, cn } from "@rydex/shared/utils";
 
 interface BookingRow {
@@ -25,6 +26,7 @@ interface BookingRow {
   status: string;
   paymentStatus: string;
   paymentMethod: string;
+  category?: keyof typeof CATEGORY_MAP;
   date: string;
   time: string;
   createdAt: string;
@@ -208,9 +210,13 @@ export default function BookingsClient() {
                     )}
                   </div>
                   <h3 className="mt-2 text-base font-bold tracking-tight">
-                    {booking.vehicle?.name || "Vehicle"} <span className="font-normal text-fg-subtle">·</span>{" "}
+                    {booking.vehicle?.name ||
+                      (booking.category ? `${CATEGORY_MAP[booking.category]?.label || "Ride"} request` : "Vehicle")}{" "}
+                    <span className="font-normal text-fg-subtle">·</span>{" "}
                     <span className="text-sm font-medium text-fg-muted">
-                      {booking.partner?.partnerProfile?.businessName || booking.partner?.name}
+                      {booking.partner?.partnerProfile?.businessName ||
+                        booking.partner?.name ||
+                        (booking.status === "pending" ? "Finding a partner" : "")}
                     </span>
                   </h3>
                   <div className="mt-2 flex flex-col gap-1 text-[11px] text-fg-muted">

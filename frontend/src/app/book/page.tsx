@@ -26,7 +26,6 @@ export default async function BookPage({
   const dropAddress = first(params.drop);
 
   const initial: BookSearchProps = {
-    category: first(params.category) || "all",
     pickup:
       pickupAddress && pickupLat !== null && pickupLng !== null
         ? { address: pickupAddress, lat: pickupLat, lng: pickupLng }
@@ -35,9 +34,9 @@ export default async function BookPage({
       dropAddress && dropLat !== null && dropLng !== null
         ? { address: dropAddress, lat: dropLat, lng: dropLng }
         : null,
+    scheduled: first(params.scheduled) === "1" || first(params.scheduled) === "true",
     date: first(params.date) || "",
-    time: first(params.time) || "10:00",
-    query: "",
+    time: first(params.time) || "",
   };
 
   return (

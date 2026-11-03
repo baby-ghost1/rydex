@@ -2,10 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { io, type Socket } from "socket.io-client";
+import type { VehicleCategory } from "@rydex/shared/types";
 
 export interface RideRequestPayload {
   bookingId: string;
-  vehicle: { name: string; category: string; image: string; registrationNumber: string };
+  category?: VehicleCategory;
+  categoryLabel?: string;
+  image?: string;
+  vehicle?: { name: string; category: string; image: string; registrationNumber: string };
   rider: { name: string; phone: string; rating: number };
   pickup: { address: string; lat: number; lng: number };
   drop: { address: string; lat: number; lng: number };
@@ -14,21 +18,38 @@ export interface RideRequestPayload {
   fare: number;
   partnerEarning: number;
   paymentMethod: "cash" | "online";
+  paymentStatus?: "pending" | "paid" | "refunded" | "failed";
+  scheduled?: boolean;
+  date?: string;
+  time?: string;
   requestedAt: string;
+}
+
+export interface RideClosedPayload {
+  bookingId: string;
+  status?: string;
 }
 
 /**
  * Connects the signed-in partner to their personal socket room so ride
  * requests and booking updates arrive instantly.
  */
-export function usePartnerSocket(onRideRequest: (payload: RideRequestPayload) => void) {
+export function usePartnerSocket(
+  onRideRequest: (payload: RideRequestPayload) => void,
+  onRideClosed?: (payload: RideClosedPayload) => void,
+) {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [connected, setConnected] = useState(false);
   const callbackRef = useRef(onRideRequest);
+  const closedRef = useRef(onRideClosed);
 
   useEffect(() => {
     callbackRef.current = onRideRequest;
   }, [onRideRequest]);
+
+  useEffect(() => {
+    closedRef.current = onRideClosed;
+  }, [onRideClosed]);
 
   useEffect(() => {
     let cancelled = false;
@@ -54,6 +75,9 @@ export function usePartnerSocket(onRideRequest: (payload: RideRequestPayload) =>
         nextSocket.on("disconnect", () => setConnected(false));
         nextSocket.on("ride:request", (payload: RideRequestPayload) => {
           callbackRef.current(payload);
+        });
+        nextSocket.on("ride:closed", (payload: RideClosedPayload) => {
+          closedRef.current?.(payload);
         });
       } catch (error) {
         console.warn("[socket] partner connect failed", error);

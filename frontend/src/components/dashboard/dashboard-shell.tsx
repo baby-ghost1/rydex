@@ -22,6 +22,9 @@ import {
   X,
 } from "lucide-react";
 import Logo from "@/components/logo";
+import PartnerPresenceProvider, {
+  PartnerPresenceCard,
+} from "@/components/dashboard/partner-presence";
 import { cn, initials } from "@rydex/shared/utils";
 import type { PartnerStatus, UserRole } from "@rydex/shared/types";
 
@@ -191,6 +194,7 @@ export default function DashboardShell({
       : user.role === "partner"
         ? "Partner account"
         : "Rider account";
+  const partnerActive = user.role === "partner" && user.partnerStatus === "approved";
 
   const sidebar = (
     <div className="flex h-full flex-col bg-surface text-fg">
@@ -215,6 +219,7 @@ export default function DashboardShell({
           </div>
           <ChevronDown className="h-4 w-4 text-fg-subtle" aria-hidden="true" />
         </Link>
+        {partnerActive && <PartnerPresenceCard className="mt-3" />}
       </div>
 
       <nav
@@ -290,7 +295,7 @@ export default function DashboardShell({
     </div>
   );
 
-  return (
+  const shell = (
     <div className="min-h-dvh bg-surface-muted text-fg">
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-line bg-surface lg:block">
         {sidebar}
@@ -352,5 +357,11 @@ export default function DashboardShell({
         <main className="mx-auto max-w-[1400px] px-4 py-6 sm:px-6 sm:py-8">{children}</main>
       </div>
     </div>
+  );
+
+  return partnerActive ? (
+    <PartnerPresenceProvider>{shell}</PartnerPresenceProvider>
+  ) : (
+    shell
   );
 }

@@ -2,10 +2,13 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { connectDB } from "@rydex/backend/lib/db";
 import { Booking } from "@rydex/backend/models/booking.model";
+import { Vehicle } from "@rydex/backend/models/vehicle.model";
 import { handleApiError, jsonError, requireUser } from "@rydex/backend/lib/auth-helpers";
 import { getRazorpay, razorpayConfigured, verifyRazorpaySignature } from "@rydex/backend/lib/razorpay";
 import { sendBookingStatusEmail } from "@rydex/backend/lib/email";
 import { emitSocketEvent, bookingRoom, userRoom } from "@rydex/backend/lib/socket";
+import { CATEGORY_MAP } from "@rydex/shared/constants";
+import type { VehicleCategory } from "@rydex/shared/types";
 
 const schema = z.object({
   bookingId: z.string().min(1),
@@ -59,14 +62,63 @@ export async function POST(request: Request) {
       user.email,
       user.name,
       "Payment confirmed",
-      `We received your payment of ₹${booking.fare.total}. Your ride request has been sent to the partner.`,
+      `We received your payment of ₹${booking.fare.total}. Your ride request is now live with nearby partners.`,
       { label: "View booking", url: `${process.env.AUTH_URL || "http://localhost:3000"}/bookings/${booking._id}` },
     ).catch(console.warn);
 
     const payload = { bookingId: String(booking._id), status: booking.status, paymentStatus: "paid" };
     emitSocketEvent(bookingRoom(String(booking._id)), "booking:update", payload);
     emitSocketEvent(userRoom(String(booking.user)), "booking:update", payload);
-    emitSocketEvent(userRoom(String(booking.partner)), "booking:update", payload);
+    if (booking.partner) {
+      emitSocketEvent(userRoom(String(booking.partner)), "booking:update", payload);
+    }
+
+    // Online bookings are only broadcast after the payment is confirmed so
+    // partners never receive a request they can't accept yet.
+    if (booking.status === "pending") {
+      const vehicle = booking.vehicle
+        ? await Vehicle.findById(booking.vehicle)
+            .select("name category image registrationNumber")
+            .lean()
+        : null;
+      const requestPayload = {
+        bookingId: String(booking._id),
+        category: booking.category,
+        categoryLabel: CATEGORY_MAP[booking.category as VehicleCategory]?.label || "Ride",
+        image: vehicle?.image,
+        ...(vehicle
+          ? {
+              vehicle: {
+                name: vehicle.name,
+                category: vehicle.category,
+                image: vehicle.image,
+                registrationNumber: vehicle.registrationNumber,
+              },
+            }
+          : {}),
+        rider: {
+          name: user.name,
+          phone: user.phone,
+          rating: 5,
+        },
+        pickup: booking.pickup,
+        drop: booking.drop,
+        distanceKm: booking.distanceKm,
+        durationMin: booking.durationMin,
+        fare: booking.fare.total,
+        partnerEarning: booking.fare.partnerEarning,
+        paymentMethod: booking.paymentMethod,
+        paymentStatus: "paid",
+        scheduled: booking.scheduled,
+        date: booking.date,
+        time: booking.time,
+        requestedAt: new Date().toISOString(),
+      };
+
+      for (const partnerId of booking.notifiedPartners || []) {
+        emitSocketEvent(userRoom(String(partnerId)), "ride:request", requestPayload);
+      }
+    }
 
     return NextResponse.json({ ok: true, paid: true });
   } catch (error) {

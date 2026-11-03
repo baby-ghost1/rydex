@@ -34,6 +34,7 @@ import RatingStars from "@/components/rating-stars";
 import Modal from "@/components/ui/modal";
 import { useBookingSocket, type LiveEvent } from "@/hooks/use-booking-socket";
 import { api } from "@/lib/client-api";
+import { CATEGORY_MAP } from "@rydex/shared/constants";
 import { cn, formatDate, initials, inr, timeAgo } from "@rydex/shared/utils";
 import type { BookingStatus, VehicleCategory } from "@rydex/shared/types";
 
@@ -56,6 +57,7 @@ interface Ride {
   drop: { address: string; lat: number; lng: number };
   date: string;
   time: string;
+  scheduled?: boolean;
   distanceKm: number;
   durationMin: number;
   fare: { base: number; distance: number; time: number; total: number; partnerEarning: number; platformFee: number };
@@ -69,11 +71,13 @@ interface Ride {
     model: string;
   } | null;
   user: RideUser;
-  partner: RideUser;
+  partner: RideUser | null;
   notes?: string;
   review?: string;
   rating?: number;
   rejectionReason?: string;
+  pickupOtp?: string;
+  dropOtp?: string;
   otpVerified: { pickup: boolean; drop: boolean };
   messages: ChatMessage[];
   partnerLocation?: { lat: number; lng: number; updatedAt: string };
@@ -333,10 +337,21 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
   async function resendOtp(type: "pickup" | "drop") {
     setActionLoading(`otp-${type}`);
     try {
-      await api(`/api/bookings/${bookingId}/otp`, { method: "POST", json: { type } });
-      toast.success(`${type === "pickup" ? "Pickup" : "Drop"} OTP sent to your email`);
+      const data = await api<{ otp: string }>(`/api/bookings/${bookingId}/otp`, {
+        method: "POST",
+        json: { type },
+      });
+      setRide((current) =>
+        current
+          ? {
+              ...current,
+              ...(type === "pickup" ? { pickupOtp: data.otp } : { dropOtp: data.otp }),
+            }
+          : current,
+      );
+      toast.success(`${type === "pickup" ? "Pickup" : "Drop"} OTP refreshed`);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Could not send the OTP.");
+      toast.error(err instanceof Error ? err.message : "Could not refresh the OTP.");
     } finally {
       setActionLoading("");
     }
@@ -431,11 +446,14 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
 
   const isRider = viewerRole === "user";
   const isPartner = viewerRole === "partner";
+  const riderWaiting = isRider && ride.status === "pending";
+  const paymentPending =
+    riderWaiting && ride.paymentMethod === "online" && ride.paymentStatus !== "paid";
   const counterpart = isRider ? ride.partner : ride.user;
   const counterpartName =
     counterpart?.partnerProfile?.businessName || counterpart?.name || "RYDEX partner";
   const active = ["accepted", "arrived", "started"].includes(ride.status);
-  const canChat = !["cancelled", "rejected"].includes(ride.status);
+  const canChat = Boolean(ride.partner) && !["cancelled", "rejected"].includes(ride.status);
   const currentStep = order[ride.status] ?? 0;
   const isTerminalBad = ["rejected", "cancelled"].includes(ride.status);
 
@@ -461,18 +479,32 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
       <div className="mt-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
           <p className="eyebrow">
-            {isPartner ? (ride.status === "pending" ? "Incoming request" : "Manage this ride") : ride.status === "completed" ? "Ride receipt" : "Your ride"}
+            {paymentPending
+              ? "Payment pending"
+              : riderWaiting
+                ? "Finding a partner"
+                : isPartner
+                  ? ride.status === "pending"
+                    ? "Incoming request"
+                    : "Manage this ride"
+                  : ride.status === "completed"
+                    ? "Ride receipt"
+                    : "Your ride"}
           </p>
           <h1 className="font-display mt-2 text-4xl font-extrabold tracking-[-0.04em] sm:text-5xl">
-            {ride.status === "completed"
-              ? "Ride completed."
-              : ride.status === "cancelled"
-                ? "Booking cancelled."
-                : ride.status === "rejected"
-                  ? "Request declined."
-                  : isPartner
-                    ? counterpart?.name || "Ride request"
-                    : `${ride.vehicle?.name || "Your ride"}.`}
+            {paymentPending
+              ? "Complete your payment."
+              : riderWaiting
+                ? "Finding a partner…"
+                : ride.status === "completed"
+                  ? "Ride completed."
+                  : ride.status === "cancelled"
+                    ? "Booking cancelled."
+                    : ride.status === "rejected"
+                      ? "Request declined."
+                      : isPartner
+                        ? counterpart?.name || "Ride request"
+                        : `${ride.vehicle?.name || "Your ride"}.`}
           </h1>
           <p className="mt-2 text-xs text-fg-muted">
             Booking #{ride._id.slice(-8).toUpperCase()} · {formatDate(ride.createdAt, true)}
@@ -510,6 +542,32 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
             {paymentLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />} Pay now
           </button>
         </div>
+      )}
+
+      {riderWaiting && (
+        <section className="mt-5 overflow-hidden rounded-3xl border border-line bg-white p-5 sm:p-6">
+          <div className="flex items-start gap-4">
+            <span className="relative grid h-12 w-12 shrink-0 place-items-center rounded-full bg-lime/20 text-ink">
+              <span className="absolute inset-0 animate-ping rounded-full bg-lime/30 motion-reduce:animate-none" />
+              <Navigation className="relative h-5 w-5" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="font-display text-lg font-bold tracking-tight">
+                {paymentPending
+                  ? "Pay to start finding a partner"
+                  : `Notifying ${CATEGORY_MAP[ride.category]?.label || "ride"} partners nearby`}
+              </p>
+              <p className="mt-1 text-xs leading-relaxed text-fg-muted">
+                {paymentPending
+                  ? "Complete your online payment above. Nearby partners in this category are notified only after the payment is confirmed."
+                  : "Every eligible online partner in this category has been alerted. The first one to accept gets your ride — we'll show their details here instantly."}
+              </p>
+            </div>
+            <span className="hidden shrink-0 rounded-full bg-surface-muted px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-fg-muted sm:inline-flex">
+              {inr(ride.fare.total)} fixed
+            </span>
+          </div>
+        </section>
       )}
 
       <div className="mt-6 grid gap-5 lg:grid-cols-[1.25fr_0.75fr]">
@@ -565,7 +623,7 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
                 })}
               </div>
               <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-line pt-4 text-[10px] text-fg-muted">
-                <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-3 w-3" /> {formatDate(ride.date)} at {ride.time}</span>
+                <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-3 w-3" /> {ride.scheduled ? `${formatDate(ride.date)} at ${ride.time}` : "Ride now"}</span>
                 <span className="inline-flex items-center gap-1.5"><RouteIcon className="h-3 w-3" /> {ride.distanceKm} km · {ride.durationMin} min</span>
                 {ride.otpVerified.pickup && <span className="inline-flex items-center gap-1.5 text-success"><BadgeCheck className="h-3 w-3" /> Pickup OTP verified</span>}
                 {ride.otpVerified.drop && <span className="inline-flex items-center gap-1.5 text-success"><BadgeCheck className="h-3 w-3" /> Drop OTP verified</span>}
@@ -576,10 +634,14 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
           <section className="rounded-3xl border border-line bg-white p-5 sm:p-6">
             <div className="flex items-center justify-between">
               <h2 className="font-display text-lg font-bold tracking-tight">Trip details</h2>
-              {ride.vehicle && (
+              {ride.vehicle ? (
                 <Link href={`/book/${ride.vehicle._id}`} className="text-[10px] font-semibold text-fg-muted underline underline-offset-2 hover:text-ink">
                   View vehicle
                 </Link>
+              ) : (
+                <span className="rounded-full bg-surface-muted px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-fg-muted">
+                  {CATEGORY_MAP[ride.category]?.label || ride.category}
+                </span>
               )}
             </div>
 
@@ -662,7 +724,7 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
             </div>
           )}
 
-          {isPartner && (
+          {isPartner && counterpart && (
             <PartnerControls
               ride={ride}
               counterpart={counterpart}
@@ -708,11 +770,12 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
                 <h2 className="font-display text-lg font-bold tracking-tight">Ride OTPs</h2>
               </div>
               <p className="mt-2 text-[11px] leading-relaxed text-fg-inverse-subtle">
-                Codes are sent to your email. Share them only at the right moment.
+                These codes stay on this page. Share the pickup code when your partner arrives, and
+                the drop code when you reach your destination.
               </p>
               <div className="mt-4 space-y-3">
                 <div className="rounded-2xl border border-white/10 bg-surface/5 p-3.5">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="text-[10px] font-semibold uppercase tracking-wider text-fg-inverse-subtle">Pickup OTP</p>
                       <p className="mt-1 text-[11px] font-medium">{ride.otpVerified.pickup ? "Verified" : "Share when partner arrives"}</p>
@@ -720,7 +783,9 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
                     {ride.otpVerified.pickup ? (
                       <CheckCircle2 className="h-5 w-5 text-lime" />
                     ) : (
-                      <span className="font-mono text-sm tracking-[0.3em] text-fg-inverse-subtle">••••</span>
+                      <span className={cn("font-mono font-bold tracking-[0.3em] text-lime", ride.pickupOtp ? "text-xl" : "text-sm text-fg-inverse-subtle")}>
+                        {ride.pickupOtp || "••••"}
+                      </span>
                     )}
                   </div>
                   {!ride.otpVerified.pickup && ["accepted", "arrived"].includes(ride.status) && (
@@ -730,20 +795,26 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
                       disabled={actionLoading === "otp-pickup"}
                       className="mt-1 inline-flex min-h-11 items-center text-xs font-semibold text-lime underline underline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      {actionLoading === "otp-pickup" ? "Sending…" : "Resend pickup OTP"}
+                      {actionLoading === "otp-pickup" ? "Refreshing…" : "Refresh code"}
                     </button>
                   )}
                 </div>
                 <div className="rounded-2xl border border-white/10 bg-surface/5 p-3.5">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-3">
                     <div>
                       <p className="text-[10px] font-semibold uppercase tracking-wider text-fg-inverse-subtle">Drop OTP</p>
                       <p className="mt-1 text-[11px] font-medium">
-                        {ride.otpVerified.drop ? "Verified" : ride.status === "started" ? "Share after reaching the drop" : "Available when the ride starts"}
+                        {ride.otpVerified.drop
+                          ? "Verified"
+                          : ride.status === "started" || ride.status === "completed"
+                            ? "Share after reaching the drop"
+                            : "Available when the ride starts"}
                       </p>
                     </div>
                     {ride.otpVerified.drop ? (
                       <CheckCircle2 className="h-5 w-5 text-lime" />
+                    ) : ride.status === "started" && ride.dropOtp ? (
+                      <span className="font-mono text-xl font-bold tracking-[0.3em] text-lime">{ride.dropOtp}</span>
                     ) : (
                       <span className="font-mono text-sm tracking-[0.3em] text-fg-inverse-subtle">••••</span>
                     )}
@@ -755,7 +826,7 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
                       disabled={actionLoading === "otp-drop"}
                       className="mt-1 inline-flex min-h-11 items-center text-xs font-semibold text-lime underline underline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                      {actionLoading === "otp-drop" ? "Sending…" : "Resend drop OTP"}
+                      {actionLoading === "otp-drop" ? "Refreshing…" : "Refresh code"}
                     </button>
                   )}
                 </div>
@@ -763,39 +834,41 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
             </section>
           )}
 
-          <section className="rounded-3xl border border-line bg-white p-5 sm:p-6">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-fg-subtle">{isRider ? "Your partner" : "Your rider"}</p>
-            <div className="mt-3 flex items-center gap-3">
-              <div className="grid h-11 w-11 place-items-center overflow-hidden rounded-full bg-surface-muted text-xs font-bold">
-                {counterpart?.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={counterpart.image} alt="" className="h-full w-full object-cover" />
+          {counterpart && (
+            <section className="rounded-3xl border border-line bg-white p-5 sm:p-6">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-fg-subtle">{isRider ? "Your partner" : "Your rider"}</p>
+              <div className="mt-3 flex items-center gap-3">
+                <div className="grid h-11 w-11 place-items-center overflow-hidden rounded-full bg-surface-muted text-xs font-bold">
+                  {counterpart.image ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={counterpart.image} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    initials(counterpartName)
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-bold">{counterpartName}</p>
+                  <p className="text-[10px] text-fg-muted">{isRider ? "Verified partner" : "RYDEX rider"}</p>
+                </div>
+                <BadgeCheck className="ml-auto h-4 w-4 text-success" />
+              </div>
+              {counterpart.phone && (
+                <p className="mt-3 flex items-center gap-2 text-[11px] text-fg-muted"><Phone className="h-3 w-3" /> {counterpart.phone}</p>
+              )}
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                {canChat && (
+                  <button type="button" onClick={() => setChatOpen(true)} className="btn-outline !px-3 !py-2 text-[11px]">
+                    <MessageCircle className="h-3.5 w-3.5" /> Message
+                  </button>
+                )}
+                {counterpart.phone ? (
+                  <a href={`tel:${counterpart.phone}`} className="btn-dark !px-3 !py-2 text-xs"><Phone className="h-3.5 w-3.5" aria-hidden="true" /> Call</a>
                 ) : (
-                  initials(counterpartName)
+                  <span className="btn-outline pointer-events-none !px-3 !py-2 text-xs opacity-40"><Phone className="h-3.5 w-3.5" aria-hidden="true" /> No phone</span>
                 )}
               </div>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-bold">{counterpartName}</p>
-                <p className="text-[10px] text-fg-muted">{isRider ? "Verified partner" : "RYDEX rider"}</p>
-              </div>
-              <BadgeCheck className="ml-auto h-4 w-4 text-success" />
-            </div>
-            {counterpart?.phone && (
-              <p className="mt-3 flex items-center gap-2 text-[11px] text-fg-muted"><Phone className="h-3 w-3" /> {counterpart.phone}</p>
-            )}
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              {canChat && (
-                <button type="button" onClick={() => setChatOpen(true)} className="btn-outline !px-3 !py-2 text-[11px]">
-                  <MessageCircle className="h-3.5 w-3.5" /> Message
-                </button>
-              )}
-              {counterpart?.phone ? (
-                <a href={`tel:${counterpart.phone}`} className="btn-dark !px-3 !py-2 text-xs"><Phone className="h-3.5 w-3.5" aria-hidden="true" /> Call</a>
-              ) : (
-                <span className="btn-outline pointer-events-none !px-3 !py-2 text-xs opacity-40"><Phone className="h-3.5 w-3.5" aria-hidden="true" /> No phone</span>
-              )}
-            </div>
-          </section>
+            </section>
+          )}
 
           <div className="rounded-3xl border border-line bg-white p-5 text-[11px] text-fg-muted">
             <p className="flex items-center gap-2 font-semibold text-ink"><Headphones className="h-4 w-4" /> RYDEX support</p>
@@ -976,7 +1049,7 @@ function PartnerControls({
           <button type="button" onClick={onStart} disabled={pickupOtp.length !== 4 || actionLoading === "started"} className="btn-dark mt-3 w-full">
             {actionLoading === "started" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Navigation className="h-4 w-4" />} Start ride
           </button>
-          <p className="mt-2 text-[10px] text-fg-subtle">Ask {counterpart.name?.split(" ")[0]} for the code emailed with their booking.</p>
+          <p className="mt-2 text-[10px] text-fg-subtle">Ask {counterpart.name?.split(" ")[0]} for the code shown on their ride page.</p>
         </div>
       )}
 

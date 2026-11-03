@@ -8,14 +8,21 @@ export interface IBookingMessage {
   createdAt: Date;
 }
 
+export interface IBookingDecline {
+  partner: mongoose.Types.ObjectId;
+  reason?: string;
+  createdAt: Date;
+}
+
 export interface IBooking {
   _id: mongoose.Types.ObjectId;
   user: mongoose.Types.ObjectId;
-  partner: mongoose.Types.ObjectId;
-  vehicle: mongoose.Types.ObjectId;
+  partner: mongoose.Types.ObjectId | null;
+  vehicle: mongoose.Types.ObjectId | null;
   category: VehicleCategory;
   pickup: { address: string; lat: number; lng: number };
   drop: { address: string; lat: number; lng: number };
+  scheduled: boolean;
   date: string;
   time: string;
   distanceKm: number;
@@ -33,6 +40,8 @@ export interface IBooking {
   status: BookingStatus;
   pickupOtpHash?: string;
   dropOtpHash?: string;
+  pickupOtpCode?: string;
+  dropOtpCode?: string;
   otpVerified: { pickup: boolean; drop: boolean };
   rideStartedAt?: Date;
   completedAt?: Date;
@@ -40,6 +49,8 @@ export interface IBooking {
   rating?: number;
   review?: string;
   rejectionReason?: string;
+  declines: IBookingDecline[];
+  notifiedPartners: mongoose.Types.ObjectId[];
   notes?: string;
   messages: IBookingMessage[];
   partnerLocation?: { lat: number; lng: number; updatedAt: Date };
@@ -79,11 +90,20 @@ const MessageSchema = new Schema<IBookingMessage>(
   { _id: true },
 );
 
+const DeclineSchema = new Schema<IBookingDecline>(
+  {
+    partner: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    reason: { type: String, maxlength: 300 },
+    createdAt: { type: Date, default: Date.now },
+  },
+  { _id: false },
+);
+
 const BookingSchema = new Schema<IBooking>(
   {
     user: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
-    partner: { type: Schema.Types.ObjectId, ref: "User", required: true, index: true },
-    vehicle: { type: Schema.Types.ObjectId, ref: "Vehicle", required: true },
+    partner: { type: Schema.Types.ObjectId, ref: "User", default: null, index: true },
+    vehicle: { type: Schema.Types.ObjectId, ref: "Vehicle", default: null },
     category: {
       type: String,
       enum: ["bike", "car", "auto", "loading", "truck"],
@@ -91,6 +111,7 @@ const BookingSchema = new Schema<IBooking>(
     },
     pickup: { type: LocationSchema, required: true },
     drop: { type: LocationSchema, required: true },
+    scheduled: { type: Boolean, default: false },
     date: { type: String, required: true },
     time: { type: String, required: true },
     distanceKm: { type: Number, required: true },
@@ -110,6 +131,8 @@ const BookingSchema = new Schema<IBooking>(
     },
     pickupOtpHash: { type: String, select: false },
     dropOtpHash: { type: String, select: false },
+    pickupOtpCode: { type: String, select: false },
+    dropOtpCode: { type: String, select: false },
     otpVerified: {
       pickup: { type: Boolean, default: false },
       drop: { type: Boolean, default: false },
@@ -120,6 +143,8 @@ const BookingSchema = new Schema<IBooking>(
     rating: { type: Number, min: 1, max: 5 },
     review: { type: String, maxlength: 500 },
     rejectionReason: String,
+    declines: { type: [DeclineSchema], default: [] },
+    notifiedPartners: { type: [Schema.Types.ObjectId], ref: "User", default: [] },
     notes: { type: String, maxlength: 300 },
     messages: { type: [MessageSchema], default: [] },
     partnerLocation: {
@@ -135,6 +160,6 @@ const BookingSchema = new Schema<IBooking>(
 
 BookingSchema.index({ user: 1, createdAt: -1 });
 BookingSchema.index({ partner: 1, status: 1, createdAt: -1 });
-BookingSchema.index({ status: 1, createdAt: -1 });
+BookingSchema.index({ status: 1, category: 1, partner: 1, createdAt: -1 });
 
 export const Booking = models.Booking || model<IBooking>("Booking", BookingSchema);

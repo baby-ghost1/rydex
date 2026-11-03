@@ -25,6 +25,9 @@ interface RideFlashBannerProps {
 
 export default function RideFlashBanner({ request, onAccept, onReject, onDismiss }: RideFlashBannerProps) {
   const [accepting, setAccepting] = useState(false);
+  const title = request.categoryLabel || request.vehicle?.name || "Ride request";
+  const image = request.image || request.vehicle?.image;
+  const awaitingPayment = request.paymentMethod === "online" && request.paymentStatus !== "paid";
 
   useEffect(() => {
     playNotificationSound();
@@ -64,17 +67,22 @@ export default function RideFlashBanner({ request, onAccept, onReject, onDismiss
         <div className="space-y-3 p-4">
           <div className="flex items-center gap-3">
             <div className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-2xl bg-surface-muted">
-              {request.vehicle.image ? (
+              {image ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={request.vehicle.image} alt="" className="h-full w-full object-cover" />
+                <img src={image} alt="" className="h-full w-full object-cover" />
               ) : (
                 <Navigation className="h-5 w-5 text-fg-subtle" />
               )}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-bold">{request.vehicle.name}</p>
-              <p className="text-[11px] text-fg-muted">
-                {request.rider.name} · {request.vehicle.registrationNumber}
+              <p className="truncate text-sm font-bold">{title}</p>
+              <p className="truncate text-[11px] text-fg-muted">
+                {request.rider.name}
+                {request.vehicle?.registrationNumber
+                  ? ` · ${request.vehicle.registrationNumber}`
+                  : request.scheduled && request.date && request.time
+                    ? ` · ${request.date} at ${request.time}`
+                    : " · Ride now"}
               </p>
             </div>
             <div className="text-right">
@@ -124,18 +132,26 @@ export default function RideFlashBanner({ request, onAccept, onReject, onDismiss
           </div>
 
           <div className="flex gap-2 pt-1">
-            <button
-              type="button"
-              onClick={() => onReject(request.bookingId)}
-              disabled={accepting}
-              className="btn-outline flex-1 text-danger"
-            >
-              <X className="h-4 w-4" /> Decline
-            </button>
-            <button type="button" onClick={handleAccept} disabled={accepting} className="btn-dark flex-1">
-              {accepting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-              Accept
-            </button>
+            {awaitingPayment ? (
+              <p className="flex-1 rounded-xl bg-warning/5 px-3 py-2.5 text-[11px] leading-relaxed text-warning">
+                Waiting for the rider&apos;s online payment before this ride can be accepted.
+              </p>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => onReject(request.bookingId)}
+                  disabled={accepting}
+                  className="btn-outline flex-1 text-danger"
+                >
+                  <X className="h-4 w-4" /> Decline
+                </button>
+                <button type="button" onClick={handleAccept} disabled={accepting} className="btn-dark flex-1">
+                  {accepting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                  Accept
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>

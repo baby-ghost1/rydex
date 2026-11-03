@@ -1,14 +1,26 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { Circle, LocateFixed, Loader2, Radio, Settings2, Wifi, WifiOff } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import Modal from "@/components/ui/modal";
 import RideFlashBanner from "@/components/ui/ride-flash-banner";
-import { api } from "@/lib/client-api";
+import { api, ClientApiError } from "@/lib/client-api";
 import { playOfflineSound, playOnlineSound } from "@/lib/sounds";
-import { usePartnerSocket, type RideRequestPayload } from "@/hooks/use-partner-socket";
+import {
+  usePartnerSocket,
+  type RideClosedPayload,
+  type RideRequestPayload,
+} from "@/hooks/use-partner-socket";
 import { cn } from "@rydex/shared/utils";
 
 const STORAGE_KEY = "rydex-partner-online";
@@ -19,8 +31,29 @@ interface Preferences {
   maxDestinationKm: number;
 }
 
-export default function PartnerPresence() {
-  const { data: session, status } = useSession();
+interface PartnerPresenceValue {
+  online: boolean;
+  starting: boolean;
+  connected: boolean;
+  position: { lat: number; lng: number } | null;
+  preferences: Preferences;
+  toggleOnline: () => void;
+  openSettings: () => void;
+}
+
+const PartnerPresenceContext = createContext<PartnerPresenceValue | null>(null);
+
+export function usePartnerPresence() {
+  return useContext(PartnerPresenceContext);
+}
+
+/**
+ * Owns the partner's online state, geolocation heartbeat, socket watcher and
+ * incoming ride banner. Mounted once so the sidebar card and banner share one
+ * connection instead of creating duplicate watchers.
+ */
+export default function PartnerPresenceProvider({ children }: { children: ReactNode }) {
+  const { data: session } = useSession();
   const isPartner = session?.user?.role === "partner" && session.user.partnerStatus === "approved";
 
   const [online, setOnline] = useState(false);
@@ -31,6 +64,7 @@ export default function PartnerPresence() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [request, setRequest] = useState<RideRequestPayload | null>(null);
+  const requestRef = useRef<RideRequestPayload | null>(null);
   const [rejecting, setRejecting] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
 
@@ -39,12 +73,16 @@ export default function PartnerPresence() {
   const lastSentRef = useRef(0);
   const positionRef = useRef<{ lat: number; lng: number } | null>(null);
 
+  useEffect(() => {
+    requestRef.current = request;
+  }, [request]);
+
   const handleRideRequest = useCallback((payload: RideRequestPayload) => {
     setRequest(payload);
     if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted" && document.hidden) {
       try {
         const notification = new Notification("New RYDEX ride request", {
-          body: `${payload.rider.name} · ${payload.vehicle.name} · ${payload.pickup.address}`,
+          body: `${payload.rider.name} · ${payload.categoryLabel || payload.vehicle?.name || "Ride"} · ${payload.pickup.address}`,
           tag: payload.bookingId,
         });
         notification.onclick = () => window.focus();
@@ -54,7 +92,24 @@ export default function PartnerPresence() {
     }
   }, []);
 
-  const { connected, joinAsPartner, updateLocation, leaveAsPartner } = usePartnerSocket(handleRideRequest);
+  const handleRideClosed = useCallback((payload: RideClosedPayload) => {
+    if (requestRef.current?.bookingId === payload.bookingId) {
+      setRequest(null);
+      toast.info(
+        payload.status === "accepted"
+          ? "Another partner accepted this ride."
+          : payload.status === "cancelled"
+            ? "This ride was cancelled by the rider."
+            : "This ride is no longer available.",
+      );
+    }
+    setRejecting((current) => (current === payload.bookingId ? null : current));
+  }, []);
+
+  const { connected, joinAsPartner, updateLocation, leaveAsPartner } = usePartnerSocket(
+    handleRideRequest,
+    handleRideClosed,
+  );
 
   const pushLocation = useCallback(
     async (coords: { lat: number; lng: number }, isOnline: boolean) => {
@@ -216,6 +271,9 @@ export default function PartnerPresence() {
       setRequest(null);
       toast.success("Ride accepted — head to the pickup.");
     } catch (error) {
+      if (error instanceof ClientApiError && error.status === 409) {
+        setRequest(null);
+      }
       toast.error(error instanceof Error ? error.message : "Could not accept the ride.");
     }
   }
@@ -236,77 +294,23 @@ export default function PartnerPresence() {
     }
   }
 
-  if (status === "loading" || !isPartner) return null;
+  const toggleOnline = useCallback(() => {
+    void (online ? goOffline() : goOnline());
+  }, [online, goOffline, goOnline]);
+
+  const value: PartnerPresenceValue = {
+    online,
+    starting,
+    connected,
+    position,
+    preferences,
+    toggleOnline,
+    openSettings: () => setSettingsOpen(true),
+  };
 
   return (
-    <>
-      <div className="fixed bottom-4 left-4 z-[90] w-[17.5rem] max-w-[calc(100vw-2rem)]">
-        <div className="rounded-2xl border border-line bg-surface p-3 shadow-xl">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <span
-                className={cn(
-                  "grid h-8 w-8 place-items-center rounded-full",
-                  online ? "bg-success/10 text-success" : "bg-surface-muted text-fg-subtle",
-                )}
-              >
-                {online ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4" />}
-              </span>
-              <div>
-                <p className="text-xs font-bold">{online ? "You're online" : "You're offline"}</p>
-                <p className="text-[10px] text-fg-subtle">
-                  {online
-                    ? connected
-                      ? "Receiving ride requests"
-                      : "Connecting…"
-                    : "Go online to get requests"}
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={online ? goOffline : goOnline}
-              disabled={starting}
-              className={cn(
-                "relative h-7 w-12 shrink-0 rounded-full transition",
-                online ? "bg-success" : "bg-line-strong",
-              )}
-              aria-label={online ? "Go offline" : "Go online"}
-              aria-pressed={online}
-            >
-              <span
-                className={cn(
-                  "absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all",
-                  online ? "left-6" : "left-1",
-                )}
-              />
-            </button>
-          </div>
-
-          <div className="mt-3 flex items-center justify-between gap-2 text-[10px] text-fg-muted">
-            <span className="inline-flex items-center gap-1">
-              <LocateFixed className="h-3 w-3" />
-              {online
-                ? position
-                  ? `${position.lat.toFixed(3)}, ${position.lng.toFixed(3)}`
-                  : "Locating…"
-                : "Location paused"}
-            </span>
-            <button
-              type="button"
-              onClick={() => setSettingsOpen(true)}
-              className="inline-flex items-center gap-1 rounded-full border border-line px-2 py-1 font-semibold text-fg-muted transition hover:border-line-strong hover:text-ink"
-            >
-              <Settings2 className="h-3 w-3" /> {preferences.acceptRadiusKm} km
-            </button>
-          </div>
-
-          <p className="mt-2 text-[9px] leading-relaxed text-fg-subtle">
-            Keep this dashboard tab open to stay online. Accepting up to {preferences.acceptRadiusKm} km away,
-            destinations up to {preferences.maxDestinationKm} km.
-          </p>
-        </div>
-      </div>
+    <PartnerPresenceContext.Provider value={value}>
+      {children}
 
       {request && (
         <RideFlashBanner
@@ -407,7 +411,81 @@ export default function PartnerPresence() {
           </button>
         </div>
       </Modal>
-    </>
+    </PartnerPresenceContext.Provider>
+  );
+}
+
+export function PartnerPresenceCard({ className }: { className?: string }) {
+  const presence = usePartnerPresence();
+  if (!presence) return null;
+  const { online, starting, connected, position, preferences, toggleOnline, openSettings } = presence;
+
+  return (
+    <div className={cn("rounded-2xl border border-line bg-surface p-3", className)}>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span
+            className={cn(
+              "grid h-8 w-8 place-items-center rounded-full",
+              online ? "bg-success/10 text-success" : "bg-surface-muted text-fg-subtle",
+            )}
+          >
+            {online ? <Wifi className="h-4 w-4" /> : <WifiOff className="h-4 w-4" />}
+          </span>
+          <div>
+            <p className="text-xs font-bold">{online ? "You're online" : "You're offline"}</p>
+            <p className="text-[10px] text-fg-subtle">
+              {online
+                ? connected
+                  ? "Receiving ride requests"
+                  : "Connecting…"
+                : "Go online to get requests"}
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={toggleOnline}
+          disabled={starting}
+          className={cn(
+            "relative h-7 w-12 shrink-0 rounded-full transition",
+            online ? "bg-success" : "bg-line-strong",
+          )}
+          aria-label={online ? "Go offline" : "Go online"}
+          aria-pressed={online}
+        >
+          <span
+            className={cn(
+              "absolute top-1 h-5 w-5 rounded-full bg-white shadow transition-all",
+              online ? "left-6" : "left-1",
+            )}
+          />
+        </button>
+      </div>
+
+      <div className="mt-3 flex items-center justify-between gap-2 text-[10px] text-fg-muted">
+        <span className="inline-flex items-center gap-1">
+          <LocateFixed className="h-3 w-3" />
+          {online
+            ? position
+              ? `${position.lat.toFixed(3)}, ${position.lng.toFixed(3)}`
+              : "Locating…"
+            : "Location paused"}
+        </span>
+        <button
+          type="button"
+          onClick={openSettings}
+          className="inline-flex items-center gap-1 rounded-full border border-line px-2 py-1 font-semibold text-fg-muted transition hover:border-line-strong hover:text-ink"
+        >
+          <Settings2 className="h-3 w-3" /> {preferences.acceptRadiusKm} km
+        </button>
+      </div>
+
+      <p className="mt-2 text-[9px] leading-relaxed text-fg-subtle">
+        Keep this dashboard tab open to stay online. Accepting up to {preferences.acceptRadiusKm} km away,
+        destinations up to {preferences.maxDestinationKm} km.
+      </p>
+    </div>
   );
 }
 

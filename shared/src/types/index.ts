@@ -39,14 +39,33 @@ export interface VehicleDTO {
   createdAt: string;
 }
 
+export interface RideOptionDTO {
+  category: VehicleCategory;
+  count: number;
+  etaMin: number;
+  nearestKm: number;
+  fare: {
+    base: number;
+    distance: number;
+    time: number;
+    total: number;
+    partnerEarning: number;
+    platformFee: number;
+  };
+}
+
 export interface BookingDTO {
   _id: string;
   user: { _id: string; name: string; email: string; phone?: string; image?: string } | string;
-  partner: { _id: string; name: string; email: string; phone?: string; image?: string } | string;
-  vehicle: VehicleDTO | string;
+  partner:
+    | { _id: string; name: string; email: string; phone?: string; image?: string }
+    | string
+    | null;
+  vehicle: VehicleDTO | string | null;
   category: VehicleCategory;
   pickup: { address: string; lat: number; lng: number };
   drop: { address: string; lat: number; lng: number };
+  scheduled?: boolean;
   date: string;
   time: string;
   distanceKm: number;
@@ -62,6 +81,9 @@ export interface BookingDTO {
   paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
   status: BookingStatus;
+  pickupOtp?: string;
+  dropOtp?: string;
+  declines?: Array<{ partner: string; reason?: string; createdAt: string }>;
   otpVerified: { pickup: boolean; drop: boolean };
   rideStartedAt?: string;
   completedAt?: string;

@@ -5,16 +5,18 @@ import { Booking } from "@rydex/backend/models/booking.model";
 import { requireUser, handleApiError, jsonError } from "@rydex/backend/lib/auth-helpers";
 import { updateBookingStatusSchema, ratingSchema } from "@rydex/shared/validation";
 import { generateOtp, hashOtp, verifyOtp } from "@rydex/backend/lib/otp";
-import { sendBookingStatusEmail, sendRideOtpEmail } from "@rydex/backend/lib/email";
+import { sendBookingStatusEmail } from "@rydex/backend/lib/email";
 import { emitSocketEvent, bookingRoom, userRoom } from "@rydex/backend/lib/socket";
 import { refundPayment } from "@rydex/backend/lib/razorpay";
 import { Vehicle } from "@rydex/backend/models/vehicle.model";
+import { CATEGORY_MAP } from "@rydex/shared/constants";
+import type { VehicleCategory } from "@rydex/shared/types";
 
 async function loadBooking(id: string) {
   if (!mongoose.isValidObjectId(id)) return null;
   await connectDB();
   return Booking.findById(id)
-    .select("+pickupOtpHash +dropOtpHash")
+    .select("+pickupOtpHash +dropOtpHash +pickupOtpCode +dropOtpCode")
     .populate("vehicle", "name image category registrationNumber brand model owner")
     .populate("user", "name email phone image")
     .populate("partner", "name email phone image partnerProfile.businessName")
@@ -25,6 +27,12 @@ interface BookingRelations {
   _id: unknown;
   user: unknown;
   partner: unknown;
+  vehicle?: unknown;
+  category: VehicleCategory;
+  status: string;
+  paymentMethod: string;
+  paymentStatus: string;
+  notifiedPartners?: unknown[];
 }
 
 interface PopulatedUser {
@@ -35,21 +43,54 @@ interface PopulatedUser {
 
 /** Populate returns a document for each ref; fall back to the raw id. */
 function refId(value: unknown) {
-  if (value && typeof value === "object" && "_id" in value) {
+  if (value === null || value === undefined) return "";
+  if (typeof value === "object" && "_id" in value) {
     return String((value as { _id: unknown })._id);
   }
   return String(value);
-}
-
-function isParticipant(booking: BookingRelations, userId: string) {
-  return refId(booking.user) === userId || refId(booking.partner) === userId;
 }
 
 function notify(booking: BookingRelations, status: string, extra: Record<string, unknown> = {}) {
   const payload = { bookingId: String(booking._id), status, ...extra };
   emitSocketEvent(bookingRoom(String(booking._id)), "booking:update", payload);
   emitSocketEvent(userRoom(refId(booking.user)), "booking:update", payload);
-  emitSocketEvent(userRoom(refId(booking.partner)), "booking:update", payload);
+  const partnerId = refId(booking.partner);
+  if (partnerId) emitSocketEvent(userRoom(partnerId), "booking:update", payload);
+}
+
+function closeBroadcast(
+  booking: BookingRelations,
+  winnerId?: string,
+  status: "accepted" | "cancelled" = "accepted",
+) {
+  for (const partner of booking.notifiedPartners || []) {
+    const id = refId(partner);
+    if (!id || id === winnerId) continue;
+    emitSocketEvent(userRoom(id), "ride:closed", {
+      bookingId: String(booking._id),
+      status,
+    });
+  }
+}
+
+async function canPartnerPreview(booking: BookingRelations, userId: string) {
+  if (booking.partner || booking.status !== "pending" || !booking.category) return false;
+
+  const notified = booking.notifiedPartners || [];
+  if (!notified.some((id) => refId(id) === userId)) return false;
+
+  const declines = (booking as unknown as { declines?: Array<{ partner: unknown }> }).declines || [];
+  if (declines.some((entry) => refId(entry.partner) === userId)) return false;
+
+  const vehicle = await Vehicle.findOne({
+    owner: userId,
+    category: booking.category,
+    approved: true,
+    available: true,
+  })
+    .select("_id")
+    .lean();
+  return Boolean(vehicle);
 }
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -58,19 +99,37 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     const { id } = await params;
     const booking = await loadBooking(id);
     if (!booking) return jsonError("Booking not found.", 404);
-    if (!isParticipant(booking, String(user._id)) && user.role !== "admin") {
-      return jsonError("You do not have access to this ride.", 403);
+
+    const userId = String(user._id);
+    const isRider = refId(booking.user) === userId;
+    const isPartner = Boolean(booking.partner) && refId(booking.partner) === userId;
+    let viewerRole: "user" | "partner" | "admin" | null = null;
+
+    if (user.role === "admin") viewerRole = "admin";
+    else if (isRider) viewerRole = "user";
+    else if (isPartner) viewerRole = "partner";
+    else if (await canPartnerPreview(booking, userId)) viewerRole = "partner";
+
+    if (!viewerRole) return jsonError("You do not have access to this ride.", 403);
+
+    const data = booking.toObject() as Record<string, unknown>;
+    const pickupCode = data.pickupOtpCode as string | undefined;
+    const dropCode = data.dropOtpCode as string | undefined;
+    delete data.pickupOtpHash;
+    delete data.dropOtpHash;
+    delete data.pickupOtpCode;
+    delete data.dropOtpCode;
+
+    if (viewerRole === "user" || viewerRole === "admin") {
+      if (["accepted", "arrived", "started", "completed"].includes(booking.status)) {
+        data.pickupOtp = pickupCode;
+      }
+      if (["started", "completed"].includes(booking.status)) {
+        data.dropOtp = dropCode;
+      }
     }
-    return NextResponse.json({
-      ok: true,
-      booking,
-      viewerRole:
-        user.role === "admin"
-          ? "admin"
-          : refId(booking.partner) === String(user._id)
-            ? "partner"
-            : "user",
-    });
+
+    return NextResponse.json({ ok: true, booking: data, viewerRole });
   } catch (error) {
     return handleApiError(error);
   }
@@ -83,10 +142,16 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const booking = await loadBooking(id);
     if (!booking) return jsonError("Booking not found.", 404);
 
-    const isRider = refId(booking.user) === String(user._id);
-    const isPartner = refId(booking.partner) === String(user._id);
+    const userId = String(user._id);
+    const isRider = refId(booking.user) === userId;
+    const isPartner = Boolean(booking.partner) && refId(booking.partner) === userId;
     const isAdmin = user.role === "admin";
-    if (!isRider && !isPartner && !isAdmin) {
+    const openPartner =
+      !booking.partner && booking.status === "pending"
+        ? await canPartnerPreview(booking, userId)
+        : false;
+
+    if (!isRider && !isPartner && !openPartner && !isAdmin) {
       return jsonError("You do not have access to this ride.", 403);
     }
 
@@ -101,12 +166,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       booking.rating = parsed.data.rating;
       booking.review = parsed.data.review || "";
       await booking.save();
-      const vehicle = await Vehicle.findById(booking.vehicle);
-      if (vehicle) {
-        const trips = Math.max(1, vehicle.totalTrips);
-        vehicle.rating =
-          Math.round(((vehicle.rating * (trips - 1) + parsed.data.rating) / trips) * 10) / 10;
-        await vehicle.save();
+      if (booking.vehicle) {
+        const vehicle = await Vehicle.findById(booking.vehicle);
+        if (vehicle) {
+          const trips = Math.max(1, vehicle.totalTrips);
+          vehicle.rating =
+            Math.round(((vehicle.rating * (trips - 1) + parsed.data.rating) / trips) * 10) / 10;
+          await vehicle.save();
+        }
       }
       notify(booking, "rated", { rating: parsed.data.rating });
       return NextResponse.json({ ok: true, rating: booking.rating });
@@ -119,22 +186,70 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const { status, reason, otp } = parsed.data;
     const appUrl = process.env.AUTH_URL || "http://localhost:3000";
     const rider = booking.user as unknown as PopulatedUser;
-    const partner = booking.partner as unknown as PopulatedUser;
-    const vehicleName = (booking.vehicle as unknown as { name?: string } | null)?.name || "your vehicle";
+    const populatedPartner = booking.partner as unknown as PopulatedUser | null;
+    const bookingCategory = booking.category as VehicleCategory;
+    const vehicleName =
+      (booking.vehicle as unknown as { name?: string } | null)?.name ||
+      `${CATEGORY_MAP[bookingCategory]?.label || "RYDEX"} ride`;
 
     if (status === "accepted") {
-      if (!isPartner && !isAdmin) return jsonError("Only the partner can accept a ride.", 403);
-      if (booking.status !== "pending") return jsonError("This request is no longer pending.", 409);
       if (booking.paymentMethod === "online" && booking.paymentStatus !== "paid") {
         return jsonError("The rider's online payment is still pending.", 409);
       }
-      booking.status = "accepted";
-      await booking.save();
+
+      if (!booking.partner) {
+        // Category broadcast: first eligible partner to hit the atomic update wins.
+        if (!openPartner) return jsonError("Only an eligible partner can accept this ride.", 403);
+
+        const vehicle = await Vehicle.findOne({
+          owner: user._id,
+          category: booking.category,
+          approved: true,
+          available: true,
+        })
+          .sort({ rating: -1, totalTrips: -1 })
+          .select("_id")
+          .lean();
+        if (!vehicle) {
+          return jsonError("You need an available vehicle in this category to accept.", 409);
+        }
+
+        const accepted = await Booking.findOneAndUpdate(
+          {
+            _id: id,
+            status: "pending",
+            partner: null,
+            "declines.partner": { $ne: user._id },
+          },
+          { $set: { status: "accepted", partner: user._id, vehicle: vehicle._id } },
+          { new: true },
+        );
+        if (!accepted) {
+          return jsonError("Another partner accepted this ride first.", 409);
+        }
+
+        booking.status = "accepted";
+        booking.partner = user._id;
+        booking.vehicle = vehicle._id;
+        closeBroadcast(booking, userId);
+      } else {
+        if (!isPartner && !isAdmin) return jsonError("Only the partner can accept a ride.", 403);
+        if (booking.status !== "pending") return jsonError("This request is no longer pending.", 409);
+        booking.status = "accepted";
+        await booking.save();
+      }
+
+      const partnerName = booking.partner
+        ? populatedPartner?.partnerProfile?.businessName ||
+          populatedPartner?.name ||
+          user.partnerProfile?.businessName ||
+          user.name
+        : user.name;
       await sendBookingStatusEmail(
         rider.email || "",
         rider.name || "there",
         "Your ride is confirmed",
-        `${partner.partnerProfile?.businessName || partner.name || "Your partner"} accepted your ${vehicleName} booking. Your pickup OTP is valid for this ride.`,
+        `${partnerName || "Your partner"} accepted your ${vehicleName} booking. Your pickup OTP is waiting on the ride page.`,
         { label: "View ride", url: `${appUrl}/bookings/${booking._id}` },
       ).catch(console.warn);
       notify(booking, "accepted");
@@ -142,6 +257,27 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     }
 
     if (status === "rejected") {
+      if (!booking.partner) {
+        // A decline on a broadcast only excludes this partner. The ride stays open.
+        if (!openPartner) return jsonError("Only an eligible partner can decline this ride.", 403);
+        if (booking.status !== "pending") return jsonError("This request is no longer open.", 409);
+        if (!reason) return jsonError("Tell the rider why you can't take this booking.", 422);
+
+        const declined = await Booking.findOneAndUpdate(
+          {
+            _id: id,
+            status: "pending",
+            partner: null,
+            "declines.partner": { $ne: user._id },
+          },
+          { $push: { declines: { partner: user._id, reason, createdAt: new Date() } } },
+          { new: false },
+        );
+        if (!declined) return jsonError("This request is no longer open.", 409);
+
+        return NextResponse.json({ ok: true, status: "pending", declined: true });
+      }
+
       if (!isPartner && !isAdmin) return jsonError("Only the partner can reject a ride.", 403);
       if (booking.status !== "pending") return jsonError("This request is no longer pending.", 409);
       if (!reason) return jsonError("Tell the rider why you can't take this booking.", 422);
@@ -160,6 +296,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         `The partner declined your request. Reason: ${reason}. You can book another vehicle from your dashboard.`,
         { label: "Find another ride", url: `${appUrl}/book` },
       ).catch(console.warn);
+      notifiedClose(booking);
       notify(booking, "rejected", { reason });
       return NextResponse.json({ ok: true, status: booking.status });
     }
@@ -176,13 +313,17 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         booking.paymentStatus = "refunded";
       }
       await booking.save();
-      await sendBookingStatusEmail(
-        partner.email || "",
-        partner.name || "there",
-        "Ride cancelled",
-        `A rider cancelled their ${vehicleName} booking.`,
-        { label: "Open dashboard", url: `${appUrl}/dashboard/partner` },
-      ).catch(console.warn);
+      if (booking.partner) {
+        await sendBookingStatusEmail(
+          populatedPartner?.email || "",
+          populatedPartner?.name || "there",
+          "Ride cancelled",
+          `A rider cancelled their ${vehicleName} booking.`,
+          { label: "Open dashboard", url: `${appUrl}/dashboard/partner` },
+        ).catch(console.warn);
+      } else {
+        closeBroadcast(booking, undefined, "cancelled");
+      }
       notify(booking, "cancelled");
       return NextResponse.json({ ok: true, status: booking.status });
     }
@@ -209,14 +350,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       booking.otpVerified.pickup = true;
       booking.rideStartedAt = new Date();
       booking.dropOtpHash = hashOtp(dropOtp);
+      booking.dropOtpCode = dropOtp;
       await booking.save();
-      await sendRideOtpEmail(
-        rider.email || "",
-        rider.name || "there",
-        "drop",
-        dropOtp,
-        vehicleName,
-      ).catch(console.warn);
       notify(booking, "started", { startedAt: booking.rideStartedAt });
       return NextResponse.json({ ok: true, status: booking.status });
     }
@@ -231,7 +366,9 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       booking.completedAt = new Date();
       if (booking.paymentMethod === "cash") booking.paymentStatus = "paid";
       await booking.save();
-      await Vehicle.updateOne({ _id: booking.vehicle }, { $inc: { totalTrips: 1 } });
+      if (booking.vehicle) {
+        await Vehicle.updateOne({ _id: booking.vehicle }, { $inc: { totalTrips: 1 } });
+      }
       await sendBookingStatusEmail(
         rider.email || "",
         rider.name || "there",
@@ -246,5 +383,17 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return jsonError("Unsupported status update.", 422);
   } catch (error) {
     return handleApiError(error);
+  }
+}
+
+/** A global rejection/cancellation must also dismiss any partner flash banners. */
+function notifiedClose(booking: BookingRelations) {
+  for (const partner of booking.notifiedPartners || []) {
+    const id = refId(partner);
+    if (!id) continue;
+    emitSocketEvent(userRoom(id), "ride:closed", {
+      bookingId: String(booking._id),
+      status: "rejected",
+    });
   }
 }

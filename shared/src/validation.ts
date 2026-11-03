@@ -43,25 +43,36 @@ export const vehicleSchema = z.object({
   available: z.boolean().optional(),
 });
 
-export const bookingSchema = z.object({
-  vehicleId: z.string().min(1),
-  pickup: z.object({
-    address: z.string().trim().min(3, "Add a pickup address").max(300),
-    lat: z.coerce.number().min(-90).max(90),
-    lng: z.coerce.number().min(-180).max(180),
-  }),
-  drop: z.object({
-    address: z.string().trim().min(3, "Add a drop address").max(300),
-    lat: z.coerce.number().min(-90).max(90),
-    lng: z.coerce.number().min(-180).max(180),
-  }),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a valid date"),
-  time: z.string().regex(/^\d{2}:\d{2}$/, "Choose a valid time"),
-  distanceKm: z.coerce.number().min(0.1).max(2000),
-  durationMin: z.coerce.number().min(1).max(5000),
-  paymentMethod: z.enum(["cash", "online"]),
-  notes: z.string().max(300).optional(),
-});
+export const bookingSchema = z
+  .object({
+    vehicleId: z.string().min(1).optional(),
+    category: z.enum(["bike", "car", "auto", "loading", "truck"]).optional(),
+    pickup: z.object({
+      address: z.string().trim().min(3, "Add a pickup address").max(300),
+      lat: z.coerce.number().min(-90).max(90),
+      lng: z.coerce.number().min(-180).max(180),
+    }),
+    drop: z.object({
+      address: z.string().trim().min(3, "Add a drop address").max(300),
+      lat: z.coerce.number().min(-90).max(90),
+      lng: z.coerce.number().min(-180).max(180),
+    }),
+    scheduled: z.boolean().optional(),
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a valid date").optional(),
+    time: z.string().regex(/^\d{2}:\d{2}$/, "Choose a valid time").optional(),
+    distanceKm: z.coerce.number().min(0.1).max(2000).optional(),
+    durationMin: z.coerce.number().min(1).max(5000).optional(),
+    paymentMethod: z.enum(["cash", "online"]),
+    notes: z.string().max(300).optional(),
+  })
+  .refine((value) => Boolean(value.vehicleId) !== Boolean(value.category), {
+    message: "Choose a ride type to continue.",
+    path: ["category"],
+  })
+  .refine((value) => !value.scheduled || (Boolean(value.date) && Boolean(value.time)), {
+    message: "Choose a date and time for your scheduled ride.",
+    path: ["date"],
+  });
 
 export const onboardingVehicleSchema = z.object({
   step: z.literal("vehicle"),

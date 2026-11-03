@@ -22,7 +22,7 @@ const faqs = [
   },
   {
     q: "What is the pickup and drop OTP?",
-    a: "For your safety, a 4-digit pickup OTP is emailed after you book and a drop OTP after the ride starts. Share the pickup code only when your partner arrives, and the drop code only after reaching your destination.",
+    a: "For your safety, a 4-digit pickup OTP appears on your ride page after a partner accepts, and a drop OTP appears once the ride starts. Share the pickup code only when your partner arrives, and the drop code only after reaching your destination.",
   },
   {
     q: "How do partners get paid?",

@@ -26,13 +26,17 @@ import { PageHeader } from "@/components/dashboard/ui";
 import StatusBadge from "@/components/status-badge";
 import Modal from "@/components/ui/modal";
 import { api } from "@/lib/client-api";
+import { CATEGORY_MAP } from "@rydex/shared/constants";
 import { cn, formatDate, initials, inr, timeAgo } from "@rydex/shared/utils";
+import type { VehicleCategory } from "@rydex/shared/types";
 
 interface RequestRide {
   _id: string;
   status: string;
   paymentMethod: "cash" | "online";
   paymentStatus: "pending" | "paid" | "refunded" | "failed";
+  category: VehicleCategory;
+  scheduled?: boolean;
   date: string;
   time: string;
   distanceKm: number;
@@ -217,7 +221,9 @@ export default function PartnerRequests() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-bold">{ride.user?.name || "RYDEX rider"}</p>
-                        <p className="text-[10px] text-fg-muted">{ride.vehicle?.name || "Vehicle"}</p>
+                        <p className="text-[10px] text-fg-muted">
+                          {ride.vehicle?.name || `${CATEGORY_MAP[ride.category]?.label || "Ride"} request`}
+                        </p>
                       </div>
                       {ride.user?.phone && (
                         <a href={`tel:${ride.user.phone}`} className="grid h-11 w-11 place-items-center rounded-full border border-line text-fg-muted transition hover:border-line-strong hover:text-ink" aria-label="Call rider">
@@ -248,7 +254,7 @@ export default function PartnerRequests() {
                     </div>
 
                     <div className="flex flex-wrap gap-x-4 gap-y-2 text-[10px] text-fg-muted">
-                      <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-3 w-3" /> {formatDate(ride.date)} at {ride.time}</span>
+                      <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-3 w-3" /> {ride.scheduled ? `${formatDate(ride.date)} at ${ride.time}` : "Ride now"}</span>
                       <span className="inline-flex items-center gap-1.5"><RouteIcon className="h-3 w-3" /> {ride.distanceKm} km · {ride.durationMin} min</span>
                       <span className={cn("inline-flex items-center gap-1.5 font-semibold", awaiting ? "text-warning" : "text-success")}>
                         {awaiting ? <CreditCard className="h-3 w-3" /> : <Banknote className="h-3 w-3" />}
