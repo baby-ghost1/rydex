@@ -332,8 +332,8 @@ export default function AdminVendorDetail({ vendorId }: { vendorId: string }) {
               </span>
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <InfoRow label="Business name" value={profile.businessName || "—"} />
-              <InfoRow label="Owner name" value={profile.ownerName || "—"} />
+              <InfoRow label="Business name" value={profile.businessName || "-"} />
+              <InfoRow label="Owner name" value={profile.ownerName || "-"} />
               <InfoRow label="Email" value={vendor.email} href={`mailto:${vendor.email}`} icon={Mail} />
               <InfoRow
                 label="Phone"
@@ -415,7 +415,7 @@ export default function AdminVendorDetail({ vendorId }: { vendorId: string }) {
                 <div key={item.label} className="rounded-xl bg-surface-muted/60 p-3">
                   <p className="text-[10px] uppercase tracking-wider text-fg-subtle">{item.label}</p>
                   <p className="mt-1 text-[11px] font-bold">
-                    {item.value !== undefined && item.value !== null ? inr(item.value) : "—"}
+                    {item.value !== undefined && item.value !== null ? inr(item.value) : "-"}
                   </p>
                 </div>
               ))}
@@ -471,7 +471,7 @@ export default function AdminVendorDetail({ vendorId }: { vendorId: string }) {
                           {doc.required && <span className="ml-0.5 text-danger">*</span>}
                         </p>
                         <p className={cn("mt-0.5 text-[10px]", url ? "text-success" : "text-fg-subtle")}>
-                          {url ? "Uploaded" : doc.required ? "Missing" : "Optional — not provided"}
+                          {url ? "Uploaded" : doc.required ? "Missing" : "Optional - not provided"}
                         </p>
                         {url && (
                           <a

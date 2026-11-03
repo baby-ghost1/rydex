@@ -4,12 +4,12 @@
 
 | Browser / OS | Viewport | Orientation | Status | Notes |
 |---|---|---|---|---|
-| Chrome 126+ (Windows/macOS) | 375×667, 1440×900 | — | ☐ | |
-| Safari 17+ (macOS) | 375×667, 1440×900 | — | ☐ | |
+| Chrome 126+ (Windows/macOS) | 375×667, 1440×900 | - | ☐ | |
+| Safari 17+ (macOS) | 375×667, 1440×900 | - | ☐ | |
 | Safari iOS 17+ (iPhone 15) | 393×852 | Portrait / Landscape | ☐ | |
 | Chrome Android 126+ (Pixel 8) | 412×915 | Portrait / Landscape | ☐ | |
-| Firefox 127+ (Windows/macOS) | 375×667, 1440×900 | — | ☐ | |
-| Edge 126+ (Windows) | 375×667, 1440×900 | — | ☐ | |
+| Firefox 127+ (Windows/macOS) | 375×667, 1440×900 | - | ☐ | |
+| Edge 126+ (Windows) | 375×667, 1440×900 | - | ☐ | |
 
 ## Critical User Journeys
 
@@ -57,7 +57,7 @@
 | Checkout | ✅ | Light | Steps: vehicle, locations, date, payment, fare |
 | RideDetail | ✅ | Light | All statuses, OTP panels, fare summary |
 | DashboardShell + Sidebar | ✅ | Light | Collapsed, expanded, mobile drawer |
-| Partner Onboarding wizard | ✅ | Light | Steps 1–6, validation, KYC |
+| Partner Onboarding wizard | ✅ | Light | Steps 1-6, validation, KYC |
 | Admin Vendor Detail | ✅ | Light | Tabs, KYC video, vehicle list |
 
 ## Target Size Audit (≥ 44×44px / 2.75rem)

@@ -361,7 +361,7 @@ export default function OnboardingWizard() {
     try {
       const url = await uploadFile(file);
       setVideoUrl(url);
-      toast.success("Verification video uploaded — submit it for review below");
+      toast.success("Verification video uploaded - submit it for review below");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not upload the video.");
     } finally {
@@ -781,7 +781,7 @@ export default function OnboardingWizard() {
                       ["drivingLicense", "Driving licence", "Front and back, clearly readable", true],
                       ["vehicleRc", "Vehicle RC", "Current registration certificate", true],
                       ["insurance", "Vehicle insurance", "Valid policy covering the vehicle", true],
-                      ["permit", "Commercial permit", "Optional — required for some commercial vehicles", false],
+                      ["permit", "Commercial permit", "Optional - required for some commercial vehicles", false],
                     ] as const).map(([key, label, description, required]) => (
                       <DocumentField
                         key={key}
@@ -840,7 +840,7 @@ export default function OnboardingWizard() {
                       <div className="grid gap-3 sm:grid-cols-2">
                         <div>
                           <label className="label" htmlFor="on-account">Account number</label>
-                          <input id="on-account" required inputMode="numeric" pattern="\d{9,18}" value={bank.accountNumber} onChange={(event) => setBank({ ...bank, accountNumber: event.target.value.replace(/\D/g, "").slice(0, 18) })} className="input font-mono" placeholder="9–18 digits" />
+                          <input id="on-account" required inputMode="numeric" pattern="\d{9,18}" value={bank.accountNumber} onChange={(event) => setBank({ ...bank, accountNumber: event.target.value.replace(/\D/g, "").slice(0, 18) })} className="input font-mono" placeholder="9-18 digits" />
                         </div>
                         <div>
                           <label className="label" htmlFor="on-account-confirm">Confirm account number</label>

@@ -170,7 +170,7 @@ export default function PartnerPresenceProvider({ children }: { children: ReactN
           localStorage.setItem(STORAGE_KEY, "0");
           return;
         }
-        // Timeouts/unavailability are usually transient — keep the partner online.
+        // Timeouts/unavailability are usually transient - keep the partner online.
         toast.error("Couldn't read your location just yet. We'll keep retrying.");
       },
       { enableHighAccuracy: true, maximumAge: 15_000, timeout: 20_000 },
@@ -199,7 +199,7 @@ export default function PartnerPresenceProvider({ children }: { children: ReactN
         joinAsPartner(coords.lat, coords.lng);
         await pushLocation(coords, true);
       }
-      toast.success("You're online — ride requests will arrive instantly.");
+      toast.success("You're online - ride requests will arrive instantly.");
     } finally {
       setStarting(false);
     }
@@ -218,7 +218,7 @@ export default function PartnerPresenceProvider({ children }: { children: ReactN
     playOfflineSound();
     const coords = positionRef.current;
     if (coords) await pushLocation(coords, false);
-    toast("You're offline — new requests are paused.");
+    toast("You're offline - new requests are paused.");
   }, [leaveAsPartner, pushLocation, stopHeartbeat]);
 
   // Load saved preferences.
@@ -289,7 +289,7 @@ export default function PartnerPresenceProvider({ children }: { children: ReactN
     try {
       await api(`/api/bookings/${bookingId}`, { method: "PATCH", json: { status: "accepted" } });
       setRequest(null);
-      toast.success("Ride accepted — opening your ride.");
+      toast.success("Ride accepted - opening your ride.");
       router.push(`/bookings/${bookingId}`);
     } catch (error) {
       if (error instanceof ClientApiError && error.status === 409) {
@@ -430,7 +430,7 @@ export function PartnerPresenceCard({ className }: { className?: string }) {
 
   if (!presence || !mounted) {
     // Match the server render exactly (and never flash "You're offline" before
-    // the resume effect runs) — show a neutral skeleton until mounted.
+    // the resume effect runs) - show a neutral skeleton until mounted.
     return (
       <div
         aria-hidden="true"

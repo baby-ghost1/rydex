@@ -82,7 +82,7 @@ export default function HomePage() {
             </h1>
 
             <p className="type-body animate-fade-up mx-auto mt-6 max-w-xl text-fg-muted">
-              From quick bike hops to full truck moves — book verified local
+              From quick bike hops to full truck moves - book verified local
               partners with transparent pricing, live tracking and real support.
             </p>
 
@@ -155,7 +155,7 @@ export default function HomePage() {
               <h2 className="type-h2 mt-3">Vehicle categories</h2>
             </div>
             <p className="max-w-sm text-sm leading-relaxed text-fg-muted">
-              Every category, one place. Choose the right vehicle for the job —
+              Every category, one place. Choose the right vehicle for the job -
               not the other way around.
             </p>
           </div>
@@ -252,7 +252,7 @@ export default function HomePage() {
             </div>
             <p className="max-w-lg text-sm leading-relaxed text-fg-muted lg:ml-auto">
               RYDEX connects you directly with local vehicle owners. No phone
-              calls, no haggling — just a clear route, a fair fare and a partner
+              calls, no haggling - just a clear route, a fair fare and a partner
               ready to drive.
             </p>
           </div>
@@ -334,7 +334,7 @@ export default function HomePage() {
             </h2>
             <p className="mt-4 max-w-md text-sm leading-relaxed text-fg-muted">
               List one vehicle or build a fleet. Set your own rates, accept
-              requests that suit you and get paid securely — with 90% of every
+              requests that suit you and get paid securely - with 90% of every
               fare staying with you.
             </p>
 

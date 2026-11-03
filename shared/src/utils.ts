@@ -15,9 +15,9 @@ export function inr(amount: number, compact = false) {
 }
 
 export function formatDate(value: string | Date | undefined, withTime = false) {
-  if (!value) return "—";
+  if (!value) return "-";
   const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
+  if (Number.isNaN(date.getTime())) return "-";
   return new Intl.DateTimeFormat("en-IN", {
     day: "2-digit",
     month: "short",
@@ -27,7 +27,7 @@ export function formatDate(value: string | Date | undefined, withTime = false) {
 }
 
 export function timeAgo(value: string | Date | undefined) {
-  if (!value) return "—";
+  if (!value) return "-";
   const seconds = Math.floor((Date.now() - new Date(value).getTime()) / 1000);
   if (seconds < 60) return "just now";
   const minutes = Math.floor(seconds / 60);
@@ -69,7 +69,7 @@ export function validEmail(email: string) {
 }
 
 export function maskAccount(accountNumber?: string) {
-  if (!accountNumber) return "—";
+  if (!accountNumber) return "-";
   return `•••• ${accountNumber.slice(-4)}`;
 }
 

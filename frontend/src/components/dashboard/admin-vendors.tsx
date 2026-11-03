@@ -220,7 +220,7 @@ export default function AdminVendors() {
                 <Icon className="h-3.5 w-3.5 text-fg-subtle" />
               </div>
               <p className="font-display mt-2 text-xl font-extrabold tracking-tight sm:text-2xl">
-                {loading ? "—" : item.value}
+                {loading ? "-" : item.value}
               </p>
             </div>
           );
@@ -374,7 +374,7 @@ export default function AdminVendors() {
       {pagination && pagination.pages > 1 && (
         <div className="flex flex-col items-center justify-between gap-3 rounded-2xl border border-line bg-white px-4 py-3 sm:flex-row">
           <p className="text-[10px] text-fg-muted">
-            Showing {(pagination.page - 1) * pagination.limit + 1}–
+            Showing {(pagination.page - 1) * pagination.limit + 1}-
             {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} vendors
           </p>
           <div className="flex items-center gap-2">

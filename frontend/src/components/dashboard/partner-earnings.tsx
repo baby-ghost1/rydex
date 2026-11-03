@@ -245,10 +245,10 @@ export default function PartnerEarnings() {
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Net earnings" value={loading ? "—" : inr(summary?.net || 0)} hint="Your 90% share" icon={Wallet} tone="lime" />
-        <StatCard label="Gross fares" value={loading ? "—" : inr(summary?.gross || 0)} hint={`${inr(summary?.platform || 0)} platform fee`} icon={BadgeIndianRupee} />
-        <StatCard label="Completed trips" value={loading ? "—" : summary?.trips || 0} hint={`${summary?.distance ? Math.round(summary.distance) : 0} km travelled`} icon={RouteIcon} />
-        <StatCard label="Average per trip" value={loading ? "—" : inr(summary?.avgPerTrip || 0)} hint={summary?.avgRating ? `${summary.avgRating.toFixed(1)} rider rating` : "Build your rating"} icon={TrendingUp} />
+        <StatCard label="Net earnings" value={loading ? "-" : inr(summary?.net || 0)} hint="Your 90% share" icon={Wallet} tone="lime" />
+        <StatCard label="Gross fares" value={loading ? "-" : inr(summary?.gross || 0)} hint={`${inr(summary?.platform || 0)} platform fee`} icon={BadgeIndianRupee} />
+        <StatCard label="Completed trips" value={loading ? "-" : summary?.trips || 0} hint={`${summary?.distance ? Math.round(summary.distance) : 0} km travelled`} icon={RouteIcon} />
+        <StatCard label="Average per trip" value={loading ? "-" : inr(summary?.avgPerTrip || 0)} hint={summary?.avgRating ? `${summary.avgRating.toFixed(1)} rider rating` : "Build your rating"} icon={TrendingUp} />
       </div>
 
       <div className="grid gap-5 xl:grid-cols-[1.35fr_0.65fr]">

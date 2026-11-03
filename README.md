@@ -79,9 +79,9 @@ The application keeps the demonstrated stack (Next.js App Router, MongoDB, Auth.
 | --- | --- | --- |
 | Admin | `admin@rydex.app` | `Admin@12345` |
 | Rider | `rider@rydex.app` | `Rider@12345` |
-| Partner — Velocity Rides | `partner@rydex.app` | `Partner@12345` |
-| Partner — MetroWheels | `metro@rydex.app` | `Metro@12345` |
-| Partner — CargoLine Logistics | `cargo@rydex.app` | `Cargo@12345` |
+| Partner - Velocity Rides | `partner@rydex.app` | `Partner@12345` |
+| Partner - MetroWheels | `metro@rydex.app` | `Metro@12345` |
+| Partner - CargoLine Logistics | `cargo@rydex.app` | `Cargo@12345` |
 
 > Change every seed password before using ek shared ya production database. The seed command is for demos aur local development.
 
@@ -186,7 +186,7 @@ This keeps Next.js HTTP routing conventions while the implementation lives in th
 ### Prerequisites
 
 - **Node.js 20.9+** aur npm 10+
-- A MongoDB database — local MongoDB 7+ ya ek free MongoDB Atlas cluster
+- A MongoDB database - local MongoDB 7+ ya ek free MongoDB Atlas cluster
 - Optional credentials for Google, Gmail, Cloudinary, Razorpay, ZEGOCLOUD aur Geoapify. Har optional service ka ek documented development fallback.
 
 ### 1. Install
@@ -505,9 +505,9 @@ The Vitest suite covers fare math aur formatting, validation schemas, OTP genera
 
 RYDEX deploys as three pieces:
 
-1. **Next.js web app** — Vercel (ya any Node 20.9+ host).
-2. **Socket.IO process** — Render, Railway, Fly.io ya ek small VPS. Vercel cannot host ek persistent Socket.IO server.
-3. **MongoDB Atlas** — plus Cloudinary, Gmail, Razorpay aur ZEGOCLOUD credentials as needed.
+1. **Next.js web app** - Vercel (ya any Node 20.9+ host).
+2. **Socket.IO process** - Render, Railway, Fly.io ya ek small VPS. Vercel cannot host ek persistent Socket.IO server.
+3. **MongoDB Atlas** - plus Cloudinary, Gmail, Razorpay aur ZEGOCLOUD credentials as needed.
 
 **On Vercel, set the project Root Directory to `frontend` and keep the Include source files outside of the Root Directory in the Build Step option enabled.** Vercel detects the npm workspace, installs from the repository root, aur the frontend `build` script compiles the Next.js app with `backend` aur `shared` available.
 
@@ -574,11 +574,11 @@ Full steps, provider settings, health checks aur ek production checklist are in 
 
 ## Documentation
 
-- [Architecture](docs/ARCHITECTURE.md) — runtime topology, folders, data model, flows, security.
-- [Environment](docs/ENVIRONMENT.md) — har variable aur provider setup.
-- [Deployment](docs/DEPLOYMENT.md) — Vercel + Socket.IO + Atlas, provider configuration, checklist.
-- [Testing](docs/TESTING.md) — commands, coverage aur the end-to-end verification matrix.
-- [Reference comparison](docs/REFERENCE-COMPARISON.md) — how the build maps to the four source videos aur where it intentionally goes further.
+- [Architecture](docs/ARCHITECTURE.md) - runtime topology, folders, data model, flows, security.
+- [Environment](docs/ENVIRONMENT.md) - har variable aur provider setup.
+- [Deployment](docs/DEPLOYMENT.md) - Vercel + Socket.IO + Atlas, provider configuration, checklist.
+- [Testing](docs/TESTING.md) - commands, coverage aur the end-to-end verification matrix.
+- [Reference comparison](docs/REFERENCE-COMPARISON.md) - how the build maps to the four source videos aur where it intentionally goes further.
 
 ---
 

@@ -140,7 +140,7 @@ export default function PartnerRides() {
                 <p className={cn("text-[10px] font-semibold uppercase tracking-wider", item.tone === "bg-ink text-white" ? "text-fg-inverse-subtle" : "text-fg-subtle")}>{item.label}</p>
                 <Icon className={cn("h-3.5 w-3.5", item.tone === "bg-ink text-white" ? "text-lime" : "text-fg-subtle")} />
               </div>
-              <p className="font-display mt-2 text-xl font-extrabold tracking-tight sm:text-2xl">{loading ? "—" : item.value}</p>
+              <p className="font-display mt-2 text-xl font-extrabold tracking-tight sm:text-2xl">{loading ? "-" : item.value}</p>
             </div>
           );
         })}

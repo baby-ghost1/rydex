@@ -135,8 +135,8 @@ export default function BookSearchClient({ initial }: { initial: BookSearchProps
       });
       toast.success(
         paymentMethod === "online"
-          ? "Booking created — complete the payment to notify nearby partners."
-          : "Request sent — nearby partners are being notified.",
+          ? "Booking created - complete the payment to notify nearby partners."
+          : "Request sent - nearby partners are being notified.",
       );
       router.push(
         `/bookings/${data.booking._id}${paymentMethod === "online" ? "?payment=pending" : "?new=1"}`,
@@ -382,7 +382,7 @@ export default function BookSearchClient({ initial }: { initial: BookSearchProps
 
           <p className="mt-4 text-[11px] leading-relaxed text-fg-subtle">
             The fare is fixed when you request. All eligible online partners in this category are
-            notified at once — the first to accept is assigned to your ride.
+            notified at once - the first to accept is assigned to your ride.
             {paymentMethod === "online" ? " Nearby partners are notified only after your online payment is confirmed." : ""}
           </p>
         </div>

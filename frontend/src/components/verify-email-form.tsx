@@ -126,7 +126,7 @@ export default function VerifyEmailForm({ initialEmail = "" }: { initialEmail?: 
         </div>
         <div>
           <label className="label" htmlFor="verify-password">
-            Password <span className="normal-case tracking-normal text-fg-subtle">(optional — sign in automatically)</span>
+            Password <span className="normal-case tracking-normal text-fg-subtle">(optional - sign in automatically)</span>
           </label>
           <input
             id="verify-password"

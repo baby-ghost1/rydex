@@ -44,7 +44,7 @@ export default async function LoginPage() {
             </p>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-fg-inverse-muted">
               Book bikes, cars, autos, loading vehicles and trucks from verified
-              local partners — all from one account.
+              local partners - all from one account.
             </p>
             <div className="mt-7 flex flex-wrap gap-x-6 gap-y-2 text-[10px] text-fg-inverse-subtle">
               <span className="flex items-center gap-1.5"><BadgeCheck className="h-3 w-3 text-lime" /> Verified partners</span>

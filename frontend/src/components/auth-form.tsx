@@ -159,7 +159,7 @@ export default function AuthForm({
         switchMode("login");
         return;
       }
-      toast.success("Email verified — welcome to RYDEX");
+      toast.success("Email verified - welcome to RYDEX");
       onSuccess?.();
       router.push("/dashboard");
       router.refresh();

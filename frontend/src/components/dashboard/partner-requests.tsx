@@ -97,7 +97,7 @@ export default function PartnerRequests() {
     try {
       await api(`/api/bookings/${ride._id}`, { method: "PATCH", json: { status: "accepted" } });
       setRides((current) => current.filter((item) => item._id !== ride._id));
-      toast.success("Ride accepted — opening your ride");
+      toast.success("Ride accepted - opening your ride");
       router.push(`/bookings/${ride._id}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not accept the ride.");
@@ -158,7 +158,7 @@ export default function PartnerRequests() {
             <p className="text-[10px] font-semibold uppercase tracking-wider text-fg-subtle">Waiting</p>
             <span className="grid h-7 w-7 place-items-center rounded-full bg-warning/10 text-warning"><Clock3 className="h-3.5 w-3.5" /></span>
           </div>
-          <p className="font-display mt-3 text-2xl font-extrabold">{loading ? "—" : rides.length}</p>
+          <p className="font-display mt-3 text-2xl font-extrabold">{loading ? "-" : rides.length}</p>
           <p className="mt-0.5 text-[10px] text-fg-subtle">Requests awaiting a response</p>
         </div>
         <div className="rounded-2xl border border-line bg-white p-4">
@@ -166,7 +166,7 @@ export default function PartnerRequests() {
             <p className="text-[10px] font-semibold uppercase tracking-wider text-fg-subtle">Potential earnings</p>
             <span className="grid h-7 w-7 place-items-center rounded-full bg-success/10 text-success"><Banknote className="h-3.5 w-3.5" /></span>
           </div>
-          <p className="font-display mt-3 text-2xl font-extrabold">{loading ? "—" : inr(potential)}</p>
+          <p className="font-display mt-3 text-2xl font-extrabold">{loading ? "-" : inr(potential)}</p>
           <p className="mt-0.5 text-[10px] text-fg-subtle">Your 90% share if all are completed</p>
         </div>
         <div className="rounded-2xl border border-line bg-white p-4">
@@ -174,7 +174,7 @@ export default function PartnerRequests() {
             <p className="text-[10px] font-semibold uppercase tracking-wider text-fg-subtle">Payment checks</p>
             <span className="grid h-7 w-7 place-items-center rounded-full bg-warning/10 text-warning"><CreditCard className="h-3.5 w-3.5" /></span>
           </div>
-          <p className="font-display mt-3 text-2xl font-extrabold">{loading ? "—" : awaitingPayment}</p>
+          <p className="font-display mt-3 text-2xl font-extrabold">{loading ? "-" : awaitingPayment}</p>
           <p className="mt-0.5 text-[10px] text-fg-subtle">Online bookings awaiting payment</p>
         </div>
       </div>

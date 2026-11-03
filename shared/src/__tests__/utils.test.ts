@@ -22,8 +22,8 @@ describe("formatting helpers", () => {
   });
 
   it("handles dates safely", () => {
-    expect(formatDate(undefined)).toBe("—");
-    expect(formatDate("not-a-date")).toBe("—");
+    expect(formatDate(undefined)).toBe("-");
+    expect(formatDate("not-a-date")).toBe("-");
     expect(formatDate("2026-10-26")).toContain("2026");
   });
 
@@ -43,7 +43,7 @@ describe("formatting helpers", () => {
     expect(validEmail("asha@example.com")).toBe(true);
     expect(validEmail("asha@example")).toBe(false);
     expect(maskAccount("123456789012")).toBe("•••• 9012");
-    expect(maskAccount()).toBe("—");
+    expect(maskAccount()).toBe("-");
   });
 
   it("converts rupees to paise and serializes documents", () => {

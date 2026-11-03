@@ -232,7 +232,7 @@ export async function POST(request: Request) {
         user.email,
         user.name,
         "Partner application received",
-        "We have received your partner application and documents. Our team will review it shortly — you will get an update by email.",
+        "We have received your partner application and documents. Our team will review it shortly - you will get an update by email.",
         { label: "View application", url: `${process.env.AUTH_URL || "http://localhost:3000"}/dashboard/partner/onboarding` },
       ).catch((emailError) => console.warn("[onboarding email]", emailError));
 

@@ -104,10 +104,10 @@ export default function RiderOverview() {
       )}
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Active rides" value={loading ? "—" : activeRide ? 1 : 0} hint="Accepted or on the road" icon={MapPin} tone={activeRide ? "dark" : "light"} href="/bookings" />
-        <StatCard label="Pending requests" value={loading ? "—" : pendingRides.length} hint="Awaiting partner response" icon={Clock3} />
-        <StatCard label="Completed trips" value={loading ? "—" : completed.length} hint="All time with RYDEX" icon={CheckCircle2} />
-        <StatCard label="Total spent" value={loading ? "—" : inr(spent)} hint="Across completed rides" icon={Package} tone="lime" />
+        <StatCard label="Active rides" value={loading ? "-" : activeRide ? 1 : 0} hint="Accepted or on the road" icon={MapPin} tone={activeRide ? "dark" : "light"} href="/bookings" />
+        <StatCard label="Pending requests" value={loading ? "-" : pendingRides.length} hint="Awaiting partner response" icon={Clock3} />
+        <StatCard label="Completed trips" value={loading ? "-" : completed.length} hint="All time with RYDEX" icon={CheckCircle2} />
+        <StatCard label="Total spent" value={loading ? "-" : inr(spent)} hint="Across completed rides" icon={Package} tone="lime" />
       </div>
 
       <div className="grid gap-5 xl:grid-cols-[1.35fr_0.65fr]">
@@ -172,7 +172,7 @@ export default function RiderOverview() {
                   One app. Every kind of ride.
                 </h2>
                 <p className="mt-2 text-xs leading-relaxed text-fg-muted">
-                  From quick bike hops to moving an entire apartment — choose a verified vehicle and go.
+                  From quick bike hops to moving an entire apartment - choose a verified vehicle and go.
                 </p>
                 <div className="mt-5 flex flex-wrap gap-2">
                   {quickCategories.map((category) => (

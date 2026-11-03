@@ -12,7 +12,7 @@ export default function SiteFooter() {
             <Logo />
             <p className="mt-6 max-w-xs text-sm leading-relaxed text-fg-muted">
               India&apos;s multi-vendor vehicle marketplace. Bikes, cars, autos,
-              loading vehicles and trucks — booked in seconds from verified local
+              loading vehicles and trucks - booked in seconds from verified local
               partners.
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-semibold uppercase tracking-wider text-fg-subtle">

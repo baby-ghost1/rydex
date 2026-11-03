@@ -50,7 +50,7 @@ export default function ProfileClient() {
     try {
       const url = await uploadFile(file);
       setImage(url);
-      toast.success("Photo uploaded — save to apply");
+      toast.success("Photo uploaded - save to apply");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not upload the photo.");
     } finally {
@@ -203,7 +203,7 @@ export default function ProfileClient() {
           <section className="rounded-3xl border border-line bg-white p-5">
             <div className="text-sm font-bold">Member since</div>
             <p className="mt-2 text-xs text-fg-muted">
-              {profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" }) : "—"}
+              {profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" }) : "-"}
             </p>
             <p className="mt-4 text-[11px] leading-relaxed text-fg-muted">
               Your data is handled according to our privacy policy. You can request a copy or deletion at any time.

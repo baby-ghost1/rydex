@@ -182,7 +182,7 @@ export default function PartnerOverview() {
                     ? "You can review your submitted details while we verify them. Editing is paused until the review is complete."
                     : status === "rejected"
                       ? "Update the requested details and resubmit. Your application will return to the review queue."
-                      : "Finish all six onboarding steps — vehicle, documents, bank, video KYC, pricing, then submit."}
+                      : "Finish all six onboarding steps - vehicle, documents, bank, video KYC, pricing, then submit."}
                 </p>
               </div>
             </div>
@@ -203,7 +203,7 @@ export default function PartnerOverview() {
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Ride requests"
-          value={loading ? "—" : stats?.pending || 0}
+          value={loading ? "-" : stats?.pending || 0}
           hint="Waiting for your response"
           icon={Clock3}
           tone={stats?.pending ? "dark" : "light"}
@@ -211,14 +211,14 @@ export default function PartnerOverview() {
         />
         <StatCard
           label="Active rides"
-          value={loading ? "—" : stats?.active || 0}
+          value={loading ? "-" : stats?.active || 0}
           hint="Accepted, arrived or on trip"
           icon={MapPin}
           href={status === "approved" ? "/dashboard/partner/rides" : "/dashboard/partner/onboarding"}
         />
         <StatCard
           label="Net earnings"
-          value={loading ? "—" : inr(stats?.net || 0)}
+          value={loading ? "-" : inr(stats?.net || 0)}
           hint={`${stats?.trips || 0} completed trips`}
           icon={Wallet}
           tone="lime"
@@ -226,7 +226,7 @@ export default function PartnerOverview() {
         />
         <StatCard
           label="Fleet"
-          value={loading ? "—" : stats?.vehicles || 0}
+          value={loading ? "-" : stats?.vehicles || 0}
           hint={
             stats?.rating
               ? `${stats.rating.toFixed(1)} average rating`
@@ -374,7 +374,7 @@ export default function PartnerOverview() {
           <section className="rounded-3xl border border-line bg-white p-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-bold"><Star className="h-4 w-4 fill-ink" /> Partner score</div>
-              <span className="text-xl font-extrabold">{stats?.rating ? stats.rating.toFixed(1) : "—"}</span>
+              <span className="text-xl font-extrabold">{stats?.rating ? stats.rating.toFixed(1) : "-"}</span>
             </div>
             <p className="mt-2 text-[11px] leading-relaxed text-fg-muted">
               {stats?.ratingCount

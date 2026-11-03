@@ -33,7 +33,7 @@ export default function ContactForm() {
         json: { name, email, subject, message },
       });
       setSent(true);
-      toast.success("Message sent — our team will get back to you");
+      toast.success("Message sent - our team will get back to you");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not send your message.");
     } finally {
@@ -127,7 +127,7 @@ export default function ContactForm() {
           value={message}
           onChange={(event) => setMessage(event.target.value)}
           className="input resize-none"
-          placeholder="Share as much detail as you can — booking number, dates, what happened…"
+          placeholder="Share as much detail as you can - booking number, dates, what happened…"
         />
         <p className="mt-1.5 text-right text-[10px] text-fg-subtle">{message.length}/2000</p>
       </div>

@@ -46,7 +46,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     if (!parsed.success) return jsonError(parsed.error.issues[0]?.message || "Type a message.", 422);
 
     await connectDB();
-    // Lean read for the access check — we don't need the whole document here.
+    // Lean read for the access check - we don't need the whole document here.
     const booking = await Booking.findById(id)
       .select("user partner status")
       .lean();

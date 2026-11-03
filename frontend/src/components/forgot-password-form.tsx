@@ -60,7 +60,7 @@ export default function ForgotPasswordForm() {
         method: "POST",
         json: { email, otp, password },
       });
-      toast.success("Password updated — sign in with your new password");
+      toast.success("Password updated - sign in with your new password");
       router.push("/login");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not reset your password.");

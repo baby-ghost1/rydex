@@ -185,26 +185,26 @@ export default function AdminBookings() {
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Total bookings"
-          value={loading ? "—" : stats?.bookings || 0}
+          value={loading ? "-" : stats?.bookings || 0}
           hint={`${stats?.completedTrips || 0} completed trips`}
           icon={CalendarDays}
         />
         <StatCard
           label="Completed"
-          value={loading ? "—" : stats?.completedTrips || 0}
+          value={loading ? "-" : stats?.completedTrips || 0}
           hint={`${tabCounts.active} active now`}
           icon={CheckCircle2}
           tone="dark"
         />
         <StatCard
           label="Gross fare value"
-          value={loading ? "—" : inr(stats?.grossRevenue || 0)}
+          value={loading ? "-" : inr(stats?.grossRevenue || 0)}
           hint={`${stats?.users || 0} registered accounts`}
           icon={Wallet}
         />
         <StatCard
           label="Platform revenue"
-          value={loading ? "—" : inr(stats?.platformRevenue || 0)}
+          value={loading ? "-" : inr(stats?.platformRevenue || 0)}
           hint={`${inr(stats?.partnerPayouts || 0)} partner payouts`}
           icon={CreditCard}
           tone="lime"
@@ -302,7 +302,7 @@ export default function AdminBookings() {
                   <div className="min-w-0">
                     <p className="text-[10px] uppercase tracking-wider text-fg-subtle">Rider</p>
                     <p className="truncate text-xs font-bold">{booking.user?.name || "RYDEX rider"}</p>
-                    <p className="truncate text-[10px] text-fg-muted">{booking.user?.email || booking.user?.phone || "—"}</p>
+                    <p className="truncate text-[10px] text-fg-muted">{booking.user?.email || booking.user?.phone || "-"}</p>
                   </div>
                 </div>
 
@@ -390,7 +390,7 @@ export default function AdminBookings() {
       {pagination && pagination.pages > 1 && (
         <div className="flex flex-col items-center justify-between gap-3 rounded-2xl border border-line bg-white px-4 py-3 sm:flex-row">
           <p className="text-[10px] text-fg-muted">
-            Showing {(pagination.page - 1) * pagination.limit + 1}–
+            Showing {(pagination.page - 1) * pagination.limit + 1}-
             {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} bookings
           </p>
           <div className="flex items-center gap-2">

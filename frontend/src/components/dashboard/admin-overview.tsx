@@ -164,27 +164,27 @@ export default function AdminOverview() {
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label="Platform revenue"
-          value={loading ? "—" : inr(summary?.platformRevenue || 0)}
+          value={loading ? "-" : inr(summary?.platformRevenue || 0)}
           hint="10% of completed fares"
           icon={BadgeIndianRupee}
           tone="lime"
         />
         <StatCard
           label="Gross bookings"
-          value={loading ? "—" : inr(summary?.grossRevenue || 0)}
+          value={loading ? "-" : inr(summary?.grossRevenue || 0)}
           hint={`${summary?.partnerPayouts ? inr(summary.partnerPayouts) : inr(0)} paid to partners`}
           icon={Wallet}
         />
         <StatCard
           label="Active vendors"
-          value={loading ? "—" : summary?.approved || 0}
+          value={loading ? "-" : summary?.approved || 0}
           hint={`${summary?.pending || 0} awaiting review`}
           icon={Users}
           href="/dashboard/admin/vendors?status=approved"
         />
         <StatCard
           label="Live vehicles"
-          value={loading ? "—" : summary?.activeVehicles || 0}
+          value={loading ? "-" : summary?.activeVehicles || 0}
           hint={`${summary?.bookings || 0} bookings all time`}
           icon={Bike}
           tone="dark"

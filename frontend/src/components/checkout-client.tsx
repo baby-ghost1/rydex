@@ -244,7 +244,7 @@ export default function CheckoutClient({
 
       const loaded = await loadRazorpayScript();
       if (!loaded) {
-        toast.error("Could not load Razorpay. Your booking is saved — retry payment from the booking page.");
+        toast.error("Could not load Razorpay. Your booking is saved - retry payment from the booking page.");
         router.push(`/bookings/${bookingId}?payment=pending`);
         return;
       }
@@ -276,7 +276,7 @@ export default function CheckoutClient({
               method: "POST",
               json: { bookingId, ...response },
             });
-            toast.success("Payment successful — request sent to the partner");
+            toast.success("Payment successful - request sent to the partner");
             router.push(`/bookings/${bookingId}?payment=success`);
           } catch (verifyError) {
             toast.error(verifyError instanceof Error ? verifyError.message : "Payment verification failed");
@@ -562,11 +562,11 @@ export default function CheckoutClient({
             <div className="mt-4 grid grid-cols-3 gap-2 text-center">
               <div className="rounded-xl border border-line px-2 py-3">
                 <MapPin className="mx-auto h-4 w-4 text-fg-subtle" aria-hidden="true" />
-                <p className="mt-1 text-xs font-bold text-fg">{route ? `${route.distanceKm} km` : "—"}</p>
+                <p className="mt-1 text-xs font-bold text-fg">{route ? `${route.distanceKm} km` : "-"}</p>
               </div>
               <div className="rounded-xl border border-line px-2 py-3">
                 <Clock3 className="mx-auto h-4 w-4 text-fg-subtle" aria-hidden="true" />
-                <p className="mt-1 text-xs font-bold text-fg">{route ? `${route.durationMin} min` : "—"}</p>
+                <p className="mt-1 text-xs font-bold text-fg">{route ? `${route.durationMin} min` : "-"}</p>
               </div>
               <div className="rounded-xl border border-line px-2 py-3">
                 <BadgeCheck className="mx-auto h-4 w-4 text-fg-subtle" aria-hidden="true" />

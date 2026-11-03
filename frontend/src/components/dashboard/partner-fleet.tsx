@@ -306,7 +306,7 @@ export default function PartnerFleet() {
         ].map((item) => (
           <div key={item.label} className="rounded-2xl border border-line bg-white p-4">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-fg-subtle">{item.label}</p>
-            <p className="font-display mt-2 text-xl font-extrabold sm:text-2xl">{loading ? "—" : item.value}</p>
+            <p className="font-display mt-2 text-xl font-extrabold sm:text-2xl">{loading ? "-" : item.value}</p>
           </div>
         ))}
       </div>

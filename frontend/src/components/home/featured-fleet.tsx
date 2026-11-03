@@ -30,7 +30,7 @@ export default function FeaturedFleet() {
           <p className="eyebrow">Top rated near you</p>
           <h2 className="type-h2 mt-3">Featured fleet</h2>
           <p className="mt-3 max-w-md text-sm leading-relaxed text-fg-muted">
-            Handpicked vehicles from verified partners — fully insured, inspected
+            Handpicked vehicles from verified partners - fully insured, inspected
             and ready for your next trip.
           </p>
         </div>

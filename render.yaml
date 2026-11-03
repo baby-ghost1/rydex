@@ -1,4 +1,4 @@
-# Render Blueprint — RYDEX realtime (Socket.IO) service.
+# Render Blueprint - RYDEX realtime (Socket.IO) service.
 # Vercel hosts the Next.js app; this file only defines the socket process.
 # Deploy: Render Dashboard → New → Blueprint → pick this repo.
 services:
@@ -14,7 +14,7 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      # Same values as the Vercel app — prompted at blueprint creation.
+      # Same values as the Vercel app - prompted at blueprint creation.
       - key: AUTH_SECRET
         sync: false
       - key: SOCKET_INTERNAL_SECRET

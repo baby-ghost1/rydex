@@ -373,7 +373,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         rider.email || "",
         rider.name || "there",
         "Ride completed",
-        `Your ${vehicleName} ride is complete. Thanks for riding with RYDEX — we'd love your rating.`,
+        `Your ${vehicleName} ride is complete. Thanks for riding with RYDEX - we'd love your rating.`,
         { label: "Rate your ride", url: `${appUrl}/bookings/${booking._id}` },
       ).catch(console.warn);
       notify(booking, "completed", { completedAt: booking.completedAt });

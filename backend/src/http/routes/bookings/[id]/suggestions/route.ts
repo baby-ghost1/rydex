@@ -37,13 +37,13 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       if (booking.status === "accepted") {
         replies.push(
           "I've arrived at your pickup location.",
-          "I'm on my way — see you shortly.",
+          "I'm on my way - see you shortly.",
           "Please share the pickup OTP when I arrive.",
         );
       } else if (booking.status === "started") {
-        replies.push("We're on the way to your drop.", "Please share the drop OTP at the destination.", "Traffic is heavy — a few minutes delayed.");
+        replies.push("We're on the way to your drop.", "Please share the drop OTP at the destination.", "Traffic is heavy - a few minutes delayed.");
       } else if (booking.status === "pending") {
-        replies.push("I can take this ride.", "I'm slightly delayed — is that okay?");
+        replies.push("I can take this ride.", "I'm slightly delayed - is that okay?");
       }
     }
 
