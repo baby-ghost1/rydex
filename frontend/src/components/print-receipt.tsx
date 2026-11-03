@@ -1,4 +1,4 @@
-import { BadgeCheck, MapPin, Phone, CarFront, Navigation } from "lucide-react";
+import { BadgeCheck, MapPin, Phone, Bike, CarFront, CarTaxiFront, Truck, Navigation } from "lucide-react";
 import { CATEGORY_MAP } from "@rydex/shared/constants";
 import { formatDate, initials, inr } from "@rydex/shared/utils";
 import type { VehicleCategory } from "@rydex/shared/types";
@@ -96,6 +96,12 @@ export default function PrintReceipt({ ride }: { ride: ReceiptRide }) {
   const when = formatDate(ride.createdAt, true);
   const bookingCode = `#${ride._id.slice(-8).toUpperCase()}`;
   const partnerInitials = ride.partner ? initials(partnerName) : "RY";
+  const vehicleIcon =
+    ride.category === "bike" ? Bike
+    : ride.category === "car" ? CarFront
+    : ride.category === "auto" ? CarTaxiFront
+    : Truck;
+  const VehicleIcon = vehicleIcon;
   const rideWhen = ride.scheduled ? `${formatDate(ride.date)} at ${ride.time}` : `${formatDate(ride.createdAt)} · ${ride.time}`;
 
   return (
@@ -105,15 +111,18 @@ export default function PrintReceipt({ ride }: { ride: ReceiptRide }) {
         style={{ fontFamily: "var(--font-inter), system-ui, sans-serif" }}
       >
         {/* Header */}
-        <div className="text-center">
-          <p className="font-display text-[22px] font-extrabold tracking-[-0.04em] leading-none">
-            RYDEX<span className="text-[#b9a05a]">.</span>
+        <div className="relative text-center">
+          <p className="absolute left-0 top-1 whitespace-nowrap font-mono text-[9px] font-semibold leading-snug text-[#6d6142]">
+            {when}
           </p>
-          <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.28em] text-[#8a7a4d]">
-            Book any vehicle, anytime
+          <p className="font-display text-[26px] font-extrabold leading-none tracking-[-0.04em]">
+            Your ride<span className="text-[#b9a05a]">.</span>
           </p>
-          <p className="mt-3 font-mono text-[11px] font-semibold tracking-tight">
-            Booking {bookingCode} · {when}
+          <p className="mt-1 text-[10px] font-semibold uppercase tracking-[0.34em] text-[#8a7a4d]">
+            RYDEX
+          </p>
+          <p className="mt-2 font-mono text-[10px] font-semibold tracking-tight">
+            Booking {bookingCode}
           </p>
           <p className="mt-1 inline-flex items-center gap-2 rounded-full border border-[#e7d6ac] bg-[#f6edd8] px-3 py-0.5 text-[9px] font-bold uppercase tracking-[0.22em] text-[#8a7a4d]">
             {ride.status === "completed" ? "Ride completed" : `Status: ${ride.status}`}
@@ -148,10 +157,6 @@ export default function PrintReceipt({ ride }: { ride: ReceiptRide }) {
           </div>
         </div>
 
-        <div className="mt-4">
-          <Divider />
-        </div>
-
         {/* Driver & vehicle */}
         <div className="mt-4">
           <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-[#8a7a4d]">Driver &amp; vehicle</p>
@@ -170,7 +175,7 @@ export default function PrintReceipt({ ride }: { ride: ReceiptRide }) {
                 </p>
               )}
             </div>
-            <CarFront className="h-6 w-6 shrink-0 text-[#b9a05a]" aria-hidden="true" />
+            <VehicleIcon className="h-6 w-6 shrink-0 text-[#b9a05a]" aria-hidden="true" />
           </div>
           <div className="mt-2 flex items-center justify-between gap-3 rounded-lg border border-[#e7d6ac] bg-[#f9f2de] px-3 py-2">
             {ride.vehicle ? (
@@ -192,19 +197,6 @@ export default function PrintReceipt({ ride }: { ride: ReceiptRide }) {
               {category?.label || ride.category}
             </span>
           </div>
-          <p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[8px] font-semibold text-[#6d6142]">
-            <span className="inline-flex items-center gap-1">
-              <BadgeCheck className="h-3 w-3 text-[#2e7d32]" /> Pickup OTP verified
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <BadgeCheck className="h-3 w-3 text-[#2e7d32]" /> Drop OTP verified
-            </span>
-            <span className="font-mono">{ride.durationMin} min ride</span>
-          </p>
-        </div>
-
-        <div className="mt-4">
-          <Divider />
         </div>
 
         {/* Fare */}
@@ -247,12 +239,12 @@ export default function PrintReceipt({ ride }: { ride: ReceiptRide }) {
         </div>
 
         {/* Thank you */}
-        <div className="mt-4 text-center">
+        <div className="mt-9 text-center">
           <p className="font-display text-[26px] font-extrabold leading-none tracking-[-0.03em]">
             Thank you<span className="text-[#b9a05a]">!</span>
           </p>
           <p className="mt-1 text-[10px] font-semibold text-[#6d6142]">
-            You rode with RYDEX — the fastest way across your city.
+            You rode with RYDEX - the fastest way across your city.
           </p>
           <div className="mt-3 flex justify-center">
             <Barcode seed={ride._id} />

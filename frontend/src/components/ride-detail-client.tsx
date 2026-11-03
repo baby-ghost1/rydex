@@ -543,7 +543,7 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
               <p className="mt-1 text-xs leading-relaxed text-fg-muted">
                 {paymentPending
                   ? "Complete your online payment above. Nearby partners in this category are notified only after the payment is confirmed."
-                  : "Every eligible online partner in this category has been alerted. The first one to accept gets your ride — we'll show their details here instantly."}
+                  : "Every eligible online partner in this category has been alerted. The first one to accept gets your ride - we'll show their details here instantly."}
               </p>
             </div>
             <span className="hidden shrink-0 rounded-full bg-surface-muted px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-fg-muted sm:inline-flex">
@@ -753,7 +753,7 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
                 <h2 className="font-display text-lg font-bold tracking-tight">Ride OTPs</h2>
               </div>
               <p className="mt-2 text-[11px] leading-relaxed text-fg-inverse-subtle">
-                These codes stay the same for this ride — no refresh needed. Share the pickup code
+                These codes stay the same for this ride - no refresh needed. Share the pickup code
                 when your partner arrives, and the drop code when you reach your destination.
               </p>
               <div className="mt-4 space-y-3">
@@ -1010,7 +1010,7 @@ function PartnerControls({
       {["accepted", "arrived"].includes(ride.status) && (
         <div className="mt-4 rounded-2xl border border-line bg-surface-muted/50 p-4">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-fg-muted">Start with pickup OTP</p>
-          <div className="mt-2 max-w-[220px]"><OtpInput label="Pickup OTP" length={4} value={pickupOtp} onChange={setPickupOtp} autoFocus={false} /></div>
+          <div className="mx-auto mt-2 w-full max-w-[220px]"><OtpInput label="Pickup OTP" length={4} value={pickupOtp} onChange={setPickupOtp} autoFocus={false} /></div>
           <button type="button" onClick={onStart} disabled={pickupOtp.length !== 4 || actionLoading === "started"} className="btn-dark mt-3 w-full">
             {actionLoading === "started" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Navigation className="h-4 w-4" />} Start ride
           </button>
@@ -1060,7 +1060,7 @@ function PartnerControls({
 
           <div className="mt-4 rounded-2xl border border-line bg-surface-muted/50 p-4">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-fg-muted">Complete with drop OTP</p>
-            <div className="mt-2 max-w-[220px]"><OtpInput label="Drop OTP" length={4} value={dropOtp} onChange={setDropOtp} autoFocus={false} /></div>
+            <div className="mx-auto mt-2 w-full max-w-[220px]"><OtpInput label="Drop OTP" length={4} value={dropOtp} onChange={setDropOtp} autoFocus={false} /></div>
             <button type="button" onClick={onComplete} disabled={dropOtp.length !== 4 || actionLoading === "completed"} className="btn-dark mt-3 w-full">
               {actionLoading === "completed" ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />} Complete ride
             </button>

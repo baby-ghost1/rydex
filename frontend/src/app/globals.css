@@ -476,6 +476,12 @@
   }
 }
 
+/* Remove the browser's default print header/footer (page URL, page numbers) */
+@page {
+  size: A4;
+  margin: 0;
+}
+
 @media print {
   .no-print {
     display: none !important;
