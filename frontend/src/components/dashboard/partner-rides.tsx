@@ -11,6 +11,7 @@ import {
   Clock3,
   CreditCard,
   PackageOpen,
+  Navigation,
   RefreshCw,
   Route as RouteIcon,
   Search,
@@ -218,6 +219,7 @@ export default function PartnerRides() {
                   <span className="text-xs font-medium text-fg-muted">{ride.vehicle?.name || "Vehicle"}</span>
                 </p>
                 <p className="mt-1 truncate text-[10px] text-fg-muted">
+                  <Navigation className="mr-1 inline-block h-2.5 w-2.5 align-middle" aria-hidden="true" />
                   {ride.pickup.address.split(",")[0]} → {ride.drop.address.split(",")[0]}
                 </p>
                 <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-fg-subtle">

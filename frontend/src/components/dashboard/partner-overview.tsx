@@ -14,6 +14,7 @@ import {
   Clock3,
   Gauge,
   MapPin,
+  Navigation,
   Package,
   Plus,
   RefreshCw,
@@ -315,6 +316,7 @@ export default function PartnerOverview() {
                         <span className="font-medium text-fg-muted">{ride.vehicle?.name || "Vehicle"}</span>
                       </p>
                       <p className="mt-1 truncate text-[10px] text-fg-muted">
+                        <Navigation className="mr-1 inline-block h-2.5 w-2.5 align-middle" aria-hidden="true" />
                         {ride.pickup.address.split(",")[0]} → {ride.drop.address.split(",")[0]} · {ride.distanceKm} km
                       </p>
                     </div>

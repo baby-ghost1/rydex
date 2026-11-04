@@ -12,6 +12,7 @@ import {
   ClipboardList,
   Clock3,
   Loader2,
+  Navigation,
   RefreshCw,
   ShieldCheck,
   TrendingUp,
@@ -267,6 +268,7 @@ export default function AdminOverview() {
                         <span className="font-medium text-fg-muted">{booking.vehicle?.name || "Vehicle"}</span>
                       </p>
                       <p className="mt-0.5 truncate text-[10px] text-fg-muted">
+                        <Navigation className="mr-1 inline-block h-2.5 w-2.5 align-middle" aria-hidden="true" />
                         {booking.pickup.address.split(",")[0]} → {booking.drop.address.split(",")[0]}
                       </p>
                     </div>

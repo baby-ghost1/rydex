@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   CreditCard,
   Loader2,
+  Navigation,
   PackageOpen,
   RefreshCw,
   Route as RouteIcon,
@@ -339,7 +340,7 @@ export default function AdminBookings() {
 
               <div className="mt-3 flex flex-col gap-2 rounded-xl bg-surface-muted/50 px-3 py-2.5 sm:flex-row sm:items-center sm:gap-4">
                 <div className="flex min-w-0 flex-1 items-center gap-2 text-[10px]">
-                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-ink" />
+                  <Navigation className="h-3 w-3 shrink-0" aria-hidden="true" />
                   <span className="truncate text-fg-muted">{booking.pickup.address}</span>
                 </div>
                 <div className="flex min-w-0 flex-1 items-center gap-2 text-[10px]">

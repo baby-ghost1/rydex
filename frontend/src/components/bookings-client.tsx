@@ -12,6 +12,7 @@ import {
   CreditCard,
   PackageOpen,
   Plus,
+  Navigation,
   Route,
 } from "lucide-react";
 import StatusBadge from "@/components/status-badge";
@@ -224,7 +225,7 @@ export default function BookingsClient() {
                     </span>
                   </h3>
                   <div className="mt-2 flex flex-col gap-1 text-[11px] text-fg-muted">
-                    <span className="inline-flex items-center gap-1.5 truncate"><span className="h-1.5 w-1.5 shrink-0 rounded-full bg-ink" /> {booking.pickup.address}</span>
+                    <span className="inline-flex items-center gap-1.5 truncate"><Navigation className="h-3 w-3 shrink-0" aria-hidden="true" /> {booking.pickup.address}</span>
                     <span className="inline-flex items-center gap-1.5 truncate"><span className="h-1.5 w-1.5 shrink-0 rounded-full bg-lime ring-1 ring-ink/15" /> {booking.drop.address}</span>
                   </div>
                 </div>

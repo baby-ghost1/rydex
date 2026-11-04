@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { Loader2, LocateFixed, MapPin } from "lucide-react";
+import { Loader2, LocateFixed, MapPin, Navigation } from "lucide-react";
 import { cn } from "@rydex/shared/utils";
 
 export interface Place {
@@ -29,6 +29,7 @@ export default function LocationInput({
   autoFocus,
   className,
   onFocus,
+  icon = "pin",
 }: {
   value: Place | null;
   onChange: (place: Place | null) => void;
@@ -38,11 +39,15 @@ export default function LocationInput({
   autoFocus?: boolean;
   className?: string;
   onFocus?: () => void;
+  /** Lead icon - pickup fields use the navigation arrow, others keep the map pin. */
+  icon?: "navigation" | "pin";
 }) {
   const generatedId = useId();
   const inputId = id ?? `location-${generatedId}`;
   const listboxId = `${inputId}-listbox`;
   const errorId = `${inputId}-error`;
+
+  const LeadIcon = icon === "navigation" ? Navigation : MapPin;
 
   const [query, setQuery] = useState(value?.address || "");
   const [results, setResults] = useState<Place[]>([]);
@@ -271,7 +276,7 @@ export default function LocationInput({
       )}
 
       <div className="relative">
-        <MapPin
+        <LeadIcon
           className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-subtle"
           aria-hidden="true"
         />

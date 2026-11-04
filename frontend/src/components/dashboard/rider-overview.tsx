@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   Clock3,
   MapPin,
+  Navigation,
   Package,
   Plus,
   ShieldCheck,
@@ -123,7 +124,7 @@ export default function RiderOverview() {
               <div className="grid gap-4 p-5 sm:grid-cols-[1fr_auto] sm:items-center">
                 <div className="min-w-0">
                   <div className="flex items-start gap-3">
-                    <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-white" />
+                    <Navigation className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                     <div className="min-w-0">
                       <p className="text-[10px] uppercase tracking-wider text-fg-inverse-subtle">Pickup</p>
                       <p className="truncate text-sm font-semibold">{activeRide.pickup.address.split(",").slice(0, 2).join(", ")}</p>
@@ -155,6 +156,7 @@ export default function RiderOverview() {
                   </p>
                   <p className="font-display mt-2 text-xl font-bold">{pendingRides[0].vehicle?.name || "Your ride"}</p>
                   <p className="mt-1 text-xs text-fg-muted">
+                    <Navigation className="mr-1 inline-block h-3 w-3 align-middle" aria-hidden="true" />
                     {pendingRides[0].pickup.address.split(",")[0]} → {pendingRides[0].drop.address.split(",")[0]} · {formatDate(pendingRides[0].date)} at {pendingRides[0].time}
                   </p>
                 </div>
@@ -227,6 +229,7 @@ export default function RiderOverview() {
                         <StatusBadge status={ride.status} dot={false} className="!px-2 !py-0.5 !text-[10px]" />
                       </div>
                       <p className="mt-1 truncate text-[10px] text-fg-muted">
+                        <Navigation className="mr-1 inline-block h-2.5 w-2.5 align-middle" aria-hidden="true" />
                         {ride.pickup.address.split(",")[0]} → {ride.drop.address.split(",")[0]}
                       </p>
                     </div>

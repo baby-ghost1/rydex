@@ -202,7 +202,7 @@ export default function BookSearchClient({ initial }: { initial: BookSearchProps
 
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-fg-muted">
             <span className="inline-flex items-center gap-1.5">
-              <span className="h-2 w-2 rounded-full bg-ink" aria-hidden="true" />
+              <Navigation className="h-3 w-3" aria-hidden="true" />
               {initial.pickup.address.split(",")[0]}
             </span>
             <ArrowRight className="h-3.5 w-3.5 text-fg-subtle" aria-hidden="true" />

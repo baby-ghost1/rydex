@@ -14,6 +14,7 @@ import {
   CreditCard,
   Loader2,
   MessageCircle,
+  Navigation,
   PackageOpen,
   Phone,
   RefreshCw,
@@ -241,7 +242,7 @@ export default function PartnerRequests() {
 
                     <div className="rounded-2xl bg-surface-muted/60 p-4">
                       <div className="flex items-start gap-3">
-                        <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-ink" />
+                        <Navigation className="mt-0.5 h-3 w-3 shrink-0" aria-hidden="true" />
                         <div className="min-w-0">
                           <p className="text-[10px] uppercase tracking-wider text-fg-subtle">Pickup</p>
                           <p className="mt-0.5 text-xs font-medium leading-relaxed text-fg">{ride.pickup.address}</p>

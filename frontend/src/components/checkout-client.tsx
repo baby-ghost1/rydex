@@ -15,6 +15,7 @@ import {
   CreditCard,
   Loader2,
   MapPin,
+  Navigation,
   ShieldCheck,
   Star,
   Users,
@@ -543,7 +544,7 @@ export default function CheckoutClient({
 
             <div className="mt-5 space-y-3 rounded-2xl bg-surface-muted p-4 text-sm">
               <div className="flex items-start gap-2.5">
-                <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-ink" aria-hidden="true" />
+                <Navigation className="mt-0.5 h-3 w-3 shrink-0" aria-hidden="true" />
                 <div className="min-w-0">
                   <p className="text-xs font-semibold uppercase tracking-wider text-fg-subtle">Pickup</p>
                   <p className="mt-0.5 line-clamp-2 leading-relaxed text-fg-muted">{pickup?.address || "Add a pickup location"}</p>

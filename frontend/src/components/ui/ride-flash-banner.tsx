@@ -93,7 +93,7 @@ export default function RideFlashBanner({ request, onAccept, onReject, onDismiss
 
           <div className="space-y-2 rounded-2xl bg-surface-muted/60 p-3">
             <div className="flex items-start gap-2.5">
-              <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-ink" />
+              <Navigation className="mt-0.5 h-3 w-3 shrink-0" aria-hidden="true" />
               <div className="min-w-0">
                 <p className="text-[10px] uppercase tracking-wider text-fg-subtle">Pickup</p>
                 <p className="mt-0.5 line-clamp-2 text-xs font-medium leading-relaxed">{request.pickup.address}</p>

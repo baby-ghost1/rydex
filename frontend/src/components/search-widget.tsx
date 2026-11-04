@@ -65,6 +65,15 @@ export default function SearchWidget({ className }: { className?: string }) {
     });
   }
 
+  function toggleScheduled() {
+    const next = !scheduled;
+    setScheduled(next);
+    if (!next) {
+      clearError("date");
+      clearError("time");
+    }
+  }
+
   function validate() {
     const next: FieldErrors = {};
 
@@ -156,17 +165,11 @@ export default function SearchWidget({ className }: { className?: string }) {
         className,
       )}
     >
-      <div className="px-1 pb-2 pt-1">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-fg-subtle">
-          Where are you going?
-        </p>
-      </div>
-
       {errorList.length > 0 && (
         <div
           id="search-errors"
           role="alert"
-          className="mt-2 rounded-xl border border-danger/20 bg-danger/5 px-3.5 py-2.5 text-xs leading-relaxed text-danger"
+          className="mb-3 rounded-xl border border-danger/20 bg-danger/5 px-3.5 py-2.5 text-xs leading-relaxed text-danger"
         >
           <p className="font-semibold">Check your trip details</p>
           <ul className="mt-1 list-inside list-disc space-y-0.5">
@@ -177,82 +180,44 @@ export default function SearchWidget({ className }: { className?: string }) {
         </div>
       )}
 
-      <div className="mt-2 grid gap-2 md:grid-cols-[minmax(0,1fr)_2.75rem_minmax(0,1fr)] md:items-end">
-        <div className="min-w-0">
-          <LocationInput
-            id="search-pickup"
-            value={pickup}
-            onChange={(place) => {
-              setPickup(place);
-              clearError("pickup");
-              if (errors.drop === "Pickup and drop cannot be the same place.") {
-                clearError("drop");
-              }
-            }}
-            placeholder="Pickup location"
-            label="From"
-          />
-        </div>
+      <div className="grid grid-cols-1 gap-1.5">
+        <LocationInput
+          id="search-pickup"
+          value={pickup}
+          onChange={(place) => {
+            setPickup(place);
+            clearError("pickup");
+            if (errors.drop === "Pickup and drop cannot be the same place.") {
+              clearError("drop");
+            }
+          }}
+          placeholder="Pickup location"
+          icon="navigation"
+        />
 
         <button
           type="button"
           onClick={swap}
           aria-label="Swap pickup and drop locations"
-          className="icon-button justify-self-center border border-line bg-surface text-fg-muted hover:border-line-strong hover:text-fg md:mb-0 md:self-end"
+          className="icon-button mx-auto mt-1 border border-line bg-surface text-fg-muted hover:border-line-strong hover:text-fg"
         >
           <ArrowUpDown className="h-4 w-4" aria-hidden="true" />
         </button>
 
-        <div className="min-w-0">
-          <LocationInput
-            id="search-drop"
-            value={drop}
-            onChange={(place) => {
-              setDrop(place);
-              clearError("drop");
-              clearError("pickup");
-            }}
-            placeholder="Where are you going?"
-            label="To"
-          />
-        </div>
-      </div>
-
-      <div className="mt-3 flex flex-wrap items-center gap-2 px-1">
-        <button
-          type="button"
-          onClick={() => {
-            setScheduled(false);
-            clearError("date");
-            clearError("time");
+        <LocationInput
+          id="search-drop"
+          value={drop}
+          onChange={(place) => {
+            setDrop(place);
+            clearError("drop");
+            clearError("pickup");
           }}
-          aria-pressed={!scheduled}
-          className={cn(
-            "min-h-11 rounded-full border px-4 text-xs font-semibold transition",
-            !scheduled
-              ? "border-ink bg-ink text-white"
-              : "border-line-strong bg-surface text-fg-muted hover:text-ink",
-          )}
-        >
-          Ride now
-        </button>
-        <button
-          type="button"
-          onClick={() => setScheduled(true)}
-          aria-pressed={scheduled}
-          className={cn(
-            "inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 text-xs font-semibold transition",
-            scheduled
-              ? "border-ink bg-ink text-white"
-              : "border-line-strong bg-surface text-fg-muted hover:text-ink",
-          )}
-        >
-          <CalendarDays className="h-3.5 w-3.5" /> Schedule for later
-        </button>
+          placeholder="Where are you going?"
+        />
       </div>
 
       {scheduled && (
-        <div className="mt-2 grid gap-2 sm:grid-cols-2">
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
           <div>
             <label className="label" htmlFor="search-date">
               Date
@@ -314,14 +279,30 @@ export default function SearchWidget({ className }: { className?: string }) {
         </div>
       )}
 
-      <button type="submit" disabled={loading} className="btn-dark mt-3 w-full px-6">
-        {loading ? (
-          <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-        ) : (
-          <ArrowRight className="h-4 w-4" aria-hidden="true" />
-        )}
-        {loading ? "Finding rides…" : "Find rides near me"}
-      </button>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button type="submit" disabled={loading} className="btn-dark min-w-[150px] flex-1">
+          {loading ? (
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+          ) : (
+            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          )}
+          {loading ? "Finding rides…" : "Book Now"}
+        </button>
+        <button
+          type="button"
+          onClick={toggleScheduled}
+          aria-pressed={scheduled}
+          className={cn(
+            "inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 text-xs font-semibold transition",
+            scheduled
+              ? "border-ink bg-ink text-white"
+              : "border-line-strong bg-surface text-fg-muted hover:text-ink",
+          )}
+        >
+          <CalendarDays className="h-3.5 w-3.5" aria-hidden="true" />
+          Schedule for later
+        </button>
+      </div>
 
       <span className="sr-only" role="status" aria-live="polite">
         {loading ? "Finding available ride categories for your route." : ""}
