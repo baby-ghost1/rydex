@@ -139,7 +139,7 @@ export default function RiderOverview() {
                     </div>
                   </div>
                   <p className="mt-4 text-[10px] text-fg-inverse-subtle">
-                    {activeRide.vehicle?.name || "Your vehicle"} · {activeRide.partner?.partnerProfile?.businessName || activeRide.partner?.name || "Partner"}
+                    {activeRide.vehicle?.name || "Your vehicle"} · {activeRide.partner?.name || activeRide.partner?.partnerProfile?.businessName || "Partner"}
                   </p>
                 </div>
                 <Link href={`/bookings/${activeRide._id}`} className="btn-lime w-full sm:w-auto">

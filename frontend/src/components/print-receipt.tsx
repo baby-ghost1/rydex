@@ -395,7 +395,7 @@ function Divider() {
  */
 export default function PrintReceipt({ ride, appUrl }: { ride: ReceiptRide; appUrl?: string }) {
   const category = CATEGORY_MAP[ride.category];
-  const partnerName = ride.partner?.partnerProfile?.businessName || ride.partner?.name || "RYDEX partner";
+  const partnerName = ride.partner?.name || ride.partner?.partnerProfile?.businessName || "RYDEX partner";
   const bookingCode = resolveBookingCode(ride);
   const partnerInitials = ride.partner ? initials(partnerName) : "RY";
   const vehicleIcon =

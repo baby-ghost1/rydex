@@ -120,10 +120,10 @@ export default function MapInner({
         style={{ height: "100%", width: "100%", minHeight: "inherit" }}
       >
         <TileLayer
-          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          maxZoom={19}
-          className="rydex-map-tiles"
+          url="https://mt{s}.google.com/vt/lyrs=m&hl=en&x={x}&y={y}&z={z}"
+          subdomains={["0", "1", "2", "3"]}
+          attribution="&copy; Google Maps"
+          maxZoom={20}
         />
         {route.length > 1 && (
           <>
@@ -143,7 +143,6 @@ export default function MapInner({
       </MapContainer>
       <style jsx global>{`
         .leaflet-container { border-radius: inherit; }
-        .rydex-map-tiles { filter: grayscale(0.85) contrast(0.96); }
       `}</style>
     </div>
   );

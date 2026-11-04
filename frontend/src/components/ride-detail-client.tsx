@@ -495,7 +495,7 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
     riderWaiting && ride.paymentMethod === "online" && ride.paymentStatus !== "paid";
   const counterpart = isRider ? ride.partner : ride.user;
   const counterpartName =
-    counterpart?.partnerProfile?.businessName || counterpart?.name || "RYDEX partner";
+    counterpart?.name || counterpart?.partnerProfile?.businessName || "RYDEX partner";
   const active = ["accepted", "arrived", "started"].includes(ride.status);
   const canChat = Boolean(ride.partner) && !["cancelled", "rejected"].includes(ride.status);
   const currentStep = order[ride.status] ?? 0;

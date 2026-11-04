@@ -311,7 +311,7 @@ export default function AdminBookings() {
 
                 <div className="flex min-w-0 items-center gap-2.5">
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-lime text-[10px] font-bold text-ink">
-                    {(booking.partner?.partnerProfile?.businessName || booking.partner?.name || "RYDEX")
+                    {(booking.partner?.name || booking.partner?.partnerProfile?.businessName || "RYDEX")
                       .split(" ")
                       .filter(Boolean)
                       .slice(0, 2)
@@ -321,9 +321,13 @@ export default function AdminBookings() {
                   <div className="min-w-0">
                     <p className="text-[10px] uppercase tracking-wider text-fg-subtle">Partner</p>
                     <p className="truncate text-xs font-bold">
-                      {booking.partner?.partnerProfile?.businessName || booking.partner?.name || "Unassigned"}
+                      {booking.partner?.name || "Unassigned"}
                     </p>
-                    <p className="truncate text-[10px] text-fg-muted">{booking.vehicle?.name || "Vehicle"}</p>
+                    <p className="truncate text-[10px] text-fg-muted">
+                      {[booking.partner?.partnerProfile?.businessName, booking.vehicle?.name]
+                        .filter(Boolean)
+                        .join(" · ") || "Vehicle"}
+                    </p>
                   </div>
                 </div>
 

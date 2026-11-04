@@ -294,7 +294,8 @@ export default function AdminVendors() {
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <h2 className="truncate text-sm font-bold">
-                      {profile.businessName || vendor.name}
+                      {vendor.name}
+                      {profile.businessName ? ` · ${profile.businessName}` : ""}
                     </h2>
                     <VendorStatusBadge
                       status={vendor.partnerStatus}

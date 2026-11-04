@@ -18,7 +18,7 @@ export default function VehicleCard({
 }) {
   const owner =
     typeof vehicle.owner === "object" && vehicle.owner
-      ? vehicle.owner.partnerProfile?.businessName || vehicle.owner.name
+      ? vehicle.owner.name || vehicle.owner.partnerProfile?.businessName
       : "Verified partner";
   const link = href || `/book/${vehicle._id}`;
 

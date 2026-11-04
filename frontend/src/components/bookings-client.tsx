@@ -220,8 +220,8 @@ export default function BookingsClient() {
                       (booking.category ? `${CATEGORY_MAP[booking.category]?.label || "Ride"} request` : "Vehicle")}{" "}
                     <span className="font-normal text-fg-subtle">·</span>{" "}
                     <span className="text-sm font-medium text-fg-muted">
-                      {booking.partner?.partnerProfile?.businessName ||
-                        booking.partner?.name ||
+                      {booking.partner?.name ||
+                        booking.partner?.partnerProfile?.businessName ||
                         (booking.status === "pending" ? "Finding a partner" : "")}
                     </span>
                   </h3>

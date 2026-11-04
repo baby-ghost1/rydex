@@ -358,7 +358,8 @@ export default function AdminOverview() {
                   <VendorAvatar name={vendor.name} image={vendor.image} size="sm" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-xs font-bold">
-                      {vendor.partnerProfile?.businessName || vendor.name}
+                      {vendor.name}
+                      {vendor.partnerProfile?.businessName ? ` · ${vendor.partnerProfile.businessName}` : ""}
                     </p>
                     <p className="truncate text-[10px] text-fg-muted">
                       {vendor.partnerProfile?.vehicleDraft?.name || "Vehicle pending"} ·{" "}
@@ -393,7 +394,8 @@ export default function AdminOverview() {
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[11px] font-semibold">
-                      {vendor.partnerProfile?.businessName || vendor.name}
+                      {vendor.name}
+                      {vendor.partnerProfile?.businessName ? ` · ${vendor.partnerProfile.businessName}` : ""}
                     </p>
                     <p className="truncate text-[10px] text-fg-subtle">{vendor.email}</p>
                   </div>

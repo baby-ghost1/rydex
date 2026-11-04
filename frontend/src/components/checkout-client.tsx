@@ -342,7 +342,7 @@ export default function CheckoutClient({
           <p className="mt-2 flex items-center gap-2 text-sm text-fg-muted">
             <Star className="h-3.5 w-3.5 fill-ink text-ink" aria-hidden="true" />
             {vehicle.rating ? vehicle.rating.toFixed(1) : "New"} · {vehicle.totalTrips} trips ·{" "}
-            {owner?.partnerProfile?.businessName || owner?.name || "Verified partner"}
+            {owner?.name || owner?.partnerProfile?.businessName || "Verified partner"}
           </p>
         </div>
         <span className="inline-flex min-h-11 items-center gap-2 self-start rounded-full border border-line bg-surface px-4 text-xs font-semibold text-fg">
