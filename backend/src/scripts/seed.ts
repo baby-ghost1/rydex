@@ -459,9 +459,9 @@ async function main() {
   console.log("Partner : partner@rydex.app (password: Partner@12345 - CHANGE IN PRODUCTION)");
   console.log("Partner : metro@rydex.app (password: Metro@12345 - CHANGE IN PRODUCTION)");
   console.log("Partner : cargo@rydex.app (password: Cargo@12345 - CHANGE IN PRODUCTION)");
-  console.log("\nSECURITY WARNING: These are demo accounts only!
-Change all passwords before deploying to production.
-Demo pickup OTP for the pending bike booking: 1234");
+  console.log("\nSECURITY WARNING: These are demo accounts only!");
+  console.log("Change all passwords before deploying to production.");
+  console.log("Demo pickup OTP for the pending bike booking: 1234");
   console.log("Demo drop OTP for the pending bike booking: 4321\n");
 
   await mongoose.disconnect();

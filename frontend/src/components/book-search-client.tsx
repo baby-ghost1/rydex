@@ -169,7 +169,7 @@ export default function BookSearchClient({ initial }: { initial: BookSearchProps
           <SearchWidget />
         </div>
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+        {/* <div className="mt-6 grid gap-3 sm:grid-cols-3">
           {[
             { icon: MapPin, title: "Set pickup & drop", text: "No date or time needed for an immediate ride." },
             { icon: Sparkles, title: "Compare categories", text: "Bike, auto, car and more with upfront fares." },
@@ -181,7 +181,7 @@ export default function BookSearchClient({ initial }: { initial: BookSearchProps
               <p className="mt-1 text-xs leading-relaxed text-fg-muted">{item.text}</p>
             </div>
           ))}
-        </div>
+        </div> */}
 
         <p className="mt-6 text-center text-xs text-fg-muted">
           Looking for a specific vehicle?{" "}
