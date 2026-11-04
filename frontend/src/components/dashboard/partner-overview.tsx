@@ -317,7 +317,7 @@ export default function PartnerOverview() {
                       </p>
                       <p className="mt-1 truncate text-[10px] text-fg-muted">
                         <Navigation className="mr-1 inline-block h-2.5 w-2.5 align-middle" aria-hidden="true" />
-                        {ride.pickup.address.split(",")[0]} → {ride.drop.address.split(",")[0]} · {ride.distanceKm} km
+                        {ride.pickup.address.split(",")[0]} <MapPin className="mr-1 inline-block h-2.5 w-2.5 align-middle" aria-hidden="true" /> {ride.drop.address.split(",")[0]} · {ride.distanceKm} km
                       </p>
                     </div>
                     <div className="flex shrink-0 items-center justify-between gap-4 border-t border-line pt-3 sm:block sm:border-0 sm:pt-0 sm:text-right">

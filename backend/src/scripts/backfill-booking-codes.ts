@@ -5,7 +5,7 @@ import "../lib/env";
 import mongoose from "mongoose";
 import { connectDB } from "../lib/db";
 import { Booking } from "../models/booking.model";
-import { newBookingCode } from "../lib/booking-code";
+import { nextBookingCode } from "../lib/booking-code";
 
 /**
  * Gives every booking that predates the booking-code feature a reference.
@@ -34,8 +34,8 @@ async function main() {
 
   let assigned = 0;
   for (const booking of missing) {
-    let code = newBookingCode(booking.createdAt as Date);
-    while (used.has(code)) code = newBookingCode(booking.createdAt as Date);
+    let code = await nextBookingCode();
+    while (used.has(code)) code = await nextBookingCode();
     used.add(code);
     await Booking.updateOne({ _id: booking._id }, { $set: { bookingCode: code } });
     assigned += 1;

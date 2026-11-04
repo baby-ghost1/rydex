@@ -552,7 +552,7 @@ export default function CheckoutClient({
               </div>
               <div className="ml-[3px] h-3 border-l border-dashed border-line-strong" aria-hidden="true" />
               <div className="flex items-start gap-2.5">
-                <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-lime ring-1 ring-ink/20" aria-hidden="true" />
+                <MapPin className="mt-0.5 h-3 w-3 shrink-0" aria-hidden="true" />
                 <div className="min-w-0">
                   <p className="text-xs font-semibold uppercase tracking-wider text-fg-subtle">Drop</p>
                   <p className="mt-0.5 line-clamp-2 leading-relaxed text-fg-muted">{drop?.address || "Add a destination"}</p>

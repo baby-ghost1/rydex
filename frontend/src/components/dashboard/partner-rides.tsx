@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   Clock3,
   CreditCard,
+  MapPin,
   PackageOpen,
   Navigation,
   RefreshCw,
@@ -220,7 +221,7 @@ export default function PartnerRides() {
                 </p>
                 <p className="mt-1 truncate text-[10px] text-fg-muted">
                   <Navigation className="mr-1 inline-block h-2.5 w-2.5 align-middle" aria-hidden="true" />
-                  {ride.pickup.address.split(",")[0]} → {ride.drop.address.split(",")[0]}
+                  {ride.pickup.address.split(",")[0]} <MapPin className="mr-1 inline-block h-2.5 w-2.5 align-middle" aria-hidden="true" /> {ride.drop.address.split(",")[0]}
                 </p>
                 <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-1 text-[10px] text-fg-subtle">
                   <span className="inline-flex items-center gap-1"><CalendarDays className="h-2.5 w-2.5" /> {formatDate(ride.date)} · {ride.time}</span>

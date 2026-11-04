@@ -3,7 +3,7 @@ import "../lib/env";
 
 import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
-import { formatBookingCode } from "@rydex/shared/utils";
+import { composeBookingCode, bumpBookingCounter } from "../lib/booking-code";
 
 const ADMIN_EMAIL = (process.env.SEED_ADMIN_EMAIL || "admin@rydex.app").toLowerCase();
 const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD || "Admin@12345"; // SECURITY: Change this in production
@@ -393,7 +393,7 @@ async function main() {
     user: rider._id,
     partner: completedPartner._id,
     vehicle: completedVehicle._id,
-    bookingCode: formatBookingCode(new Date(Date.now() - 3 * 86400000), "5A74"),
+    bookingCode: composeBookingCode(1, "5A74"),
     category: completedVehicle.category,
     pickup: {
       address: "Kempegowda International Airport, Bengaluru",
@@ -429,7 +429,7 @@ async function main() {
     user: rider._id,
     partner: pendingPartner._id,
     vehicle: pendingVehicle._id,
-    bookingCode: formatBookingCode(new Date(Date.now() + 86400000), "7C19"),
+    bookingCode: composeBookingCode(2, "7C19"),
     category: pendingVehicle.category,
     pickup: { address: "HSR Layout Sector 2, Bengaluru", lat: 12.9116, lng: 77.6474 },
     drop: { address: "Church Street, MG Road, Bengaluru", lat: 12.9756, lng: 77.6068 },
@@ -452,6 +452,9 @@ async function main() {
     dropOtpHash: hashOtp("4321"),
     notes: "I have one cabin bag.",
   });
+
+  // Keep live bookings from colliding with the fixed demo codes above.
+  await bumpBookingCounter(100);
 
   console.log("\nSeed complete.\n");
   console.log("Admin   :", ADMIN_EMAIL, "(password: Admin@12345 - CHANGE IN PRODUCTION)");

@@ -13,6 +13,7 @@ import {
   Landmark,
   Loader2,
   LockKeyhole,
+  MapPin,
   Navigation,
   Pencil,
   RefreshCw,
@@ -308,7 +309,7 @@ export default function PartnerEarnings() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-xs font-bold">{booking.user?.name || "RYDEX rider"} <span className="font-normal text-fg-subtle">·</span> <span className="font-medium text-fg-muted">{booking.vehicle?.name}</span></p>
-                      <p className="mt-1 truncate text-[10px] text-fg-muted"><Navigation className="mr-1 inline-block h-2.5 w-2.5 align-middle" aria-hidden="true" />{booking.pickup.address.split(",")[0]} → {booking.drop.address.split(",")[0]}</p>
+                      <p className="mt-1 truncate text-[10px] text-fg-muted"><Navigation className="mr-1 inline-block h-2.5 w-2.5 align-middle" aria-hidden="true" />{booking.pickup.address.split(",")[0]} <MapPin className="mr-1 inline-block h-2.5 w-2.5 align-middle" aria-hidden="true" /> {booking.drop.address.split(",")[0]}</p>
                       <p className="mt-1 flex flex-wrap items-center gap-x-3 text-[10px] text-fg-subtle">
                         <span className="inline-flex items-center gap-1"><CalendarDays className="h-2.5 w-2.5" /> {formatDate(booking.completedAt || booking.date)}</span>
                         <span className="inline-flex items-center gap-1"><RouteIcon className="h-2.5 w-2.5" /> {booking.distanceKm} km</span>

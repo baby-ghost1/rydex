@@ -12,6 +12,7 @@ import {
   ClipboardList,
   Clock3,
   Loader2,
+  MapPin,
   Navigation,
   RefreshCw,
   ShieldCheck,
@@ -269,7 +270,7 @@ export default function AdminOverview() {
                       </p>
                       <p className="mt-0.5 truncate text-[10px] text-fg-muted">
                         <Navigation className="mr-1 inline-block h-2.5 w-2.5 align-middle" aria-hidden="true" />
-                        {booking.pickup.address.split(",")[0]} → {booking.drop.address.split(",")[0]}
+                        {booking.pickup.address.split(",")[0]} <MapPin className="mr-1 inline-block h-2.5 w-2.5 align-middle" aria-hidden="true" /> {booking.drop.address.split(",")[0]}
                       </p>
                     </div>
                     <div className="flex items-center justify-between gap-4 sm:block sm:text-right">

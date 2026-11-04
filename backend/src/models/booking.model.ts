@@ -1,6 +1,6 @@
 import mongoose, { Schema, model, models } from "mongoose";
 import type { BookingStatus, PaymentMethod, PaymentStatus, VehicleCategory } from "@rydex/shared/types";
-import { newBookingCode } from "@rydex/backend/lib/booking-code";
+import { nextBookingCode } from "@rydex/backend/lib/booking-code";
 
 export interface IBookingMessage {
   _id?: mongoose.Types.ObjectId;
@@ -165,14 +165,12 @@ BookingSchema.index({ user: 1, createdAt: -1 });
 BookingSchema.index({ partner: 1, status: 1, createdAt: -1 });
 BookingSchema.index({ status: 1, category: 1, partner: 1, createdAt: -1 });
 
-/** Every booking gets a human readable reference (#RY031120261722055A74). */
+/** Every booking gets a human readable reference (#RY + db serial + sequence + 4 chars). */
 BookingSchema.pre("validate", async function assignBookingCode() {
   if (this.bookingCode) return;
   const BookingModel = models.Booking as mongoose.Model<IBooking> | undefined;
-  // Older bookings keep the date they were created on, not the date they were touched.
-  const stamp = this.createdAt || new Date();
   for (let attempt = 0; attempt < 8; attempt += 1) {
-    const candidate = newBookingCode(stamp);
+    const candidate = await nextBookingCode();
     const exists = BookingModel
       ? await BookingModel.exists({ bookingCode: candidate })
       : null;
@@ -181,7 +179,7 @@ BookingSchema.pre("validate", async function assignBookingCode() {
       return;
     }
   }
-  this.bookingCode = newBookingCode(stamp);
+  this.bookingCode = await nextBookingCode();
 });
 
 export const Booking = models.Booking || model<IBooking>("Booking", BookingSchema);

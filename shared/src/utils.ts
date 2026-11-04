@@ -54,8 +54,9 @@ export function haversineKm(a: { lat: number; lng: number }, b: { lat: number; l
 export const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
 
 /**
- * Human friendly booking reference: #RY + ddmmyyyy + hhmmss + unique.
- * Example: #RY031120261722055A74
+ * Legacy booking reference (pre-serial era): #RY + ddmmyyyy + hhmmss + unique.
+ * Only used as a fallback for records that never stored a code. New bookings
+ * use @rydex/backend/lib/booking-code (db serial + sequence + 4-char suffix).
  */
 export function formatBookingCode(date: Date | string, unique: string | number) {
   const parsed = date instanceof Date ? date : new Date(date);

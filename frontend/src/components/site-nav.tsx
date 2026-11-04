@@ -22,10 +22,8 @@ import { api } from "@/lib/client-api";
 import { toast } from "sonner";
 
 const links = [
-  { href: "/", label: "Home" },
-  { href: "/bookings", label: "Bookings" },
-  { href: "/fleet", label: "Fleet" },
-  { href: "/#faq", label: "FAQ" },
+  { href: "/fleet", label: "Fleets" },
+  { href: "/faq", label: "FAQs" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -178,38 +176,6 @@ export default function SiteNav({ dark = false }: { dark?: boolean }) {
       >
         <Logo dark={dark} className="min-h-11" />
 
-        <nav aria-label="Primary" className="hidden items-center gap-1 lg:flex">
-          {links.map((link) => {
-            const active = isActive(link.href);
-            const current = active
-              ? link.href.includes("#")
-                ? "location"
-                : "page"
-              : undefined;
-
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => handleNavClick(link.href)}
-                aria-current={current}
-                className={cn(
-                  "inline-flex min-h-11 items-center rounded-full px-4 text-[13px] font-medium transition",
-                  dark
-                    ? active
-                      ? "bg-white text-ink"
-                      : "text-fg-muted hover:bg-white/10 hover:text-fg"
-                    : active
-                      ? "bg-ink text-white"
-                      : "text-fg-muted hover:bg-surface-muted hover:text-fg",
-                )}
-              >
-                {link.label}
-              </Link>
-            );
-          })}
-        </nav>
-
         <div className="flex items-center gap-2">
           {status === "loading" ? (
             <>
@@ -359,7 +325,7 @@ export default function SiteNav({ dark = false }: { dark?: boolean }) {
             aria-expanded={menuOpen}
             aria-controls="mobile-navigation"
             className={cn(
-              "icon-button border lg:hidden",
+              "icon-button border",
               dark
                 ? "border-white/20 text-fg hover:bg-white/10"
                 : "border-line text-fg hover:bg-surface-muted",
@@ -379,7 +345,7 @@ export default function SiteNav({ dark = false }: { dark?: boolean }) {
           ref={mobileMenuRef}
           id="mobile-navigation"
           className={cn(
-            "mx-auto mt-2 max-w-6xl overflow-hidden rounded-3xl border p-3 shadow-2xl lg:hidden",
+            "mx-auto mt-2 max-w-6xl overflow-hidden rounded-3xl border p-3 shadow-2xl",
             dark
               ? "surface-inverse border-white/10"
               : "surface-default border-line",

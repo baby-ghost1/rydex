@@ -15,8 +15,6 @@ import {
 import PublicShell from "@/components/public-shell";
 import SiteNav from "@/components/site-nav";
 import CategoryQuickFilter from "@/components/category-quick-filter";
-import FeaturedFleet from "@/components/home/featured-fleet";
-import HomeFaq from "@/components/home/home-faq";
 import { CATEGORY_ICONS } from "@/lib/category-icons";
 import { VEHICLE_CATEGORIES } from "@rydex/shared/constants";
 
@@ -234,8 +232,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      <FeaturedFleet />
-
       <section
         id="how-it-works"
         className="surface-inverse section-y scroll-mt-24 px-5 text-fg sm:px-8"
@@ -363,8 +359,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      <HomeFaq />
     </PublicShell>
   );
 }

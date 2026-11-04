@@ -12,6 +12,7 @@ import {
   CreditCard,
   PackageOpen,
   Plus,
+  MapPin,
   Navigation,
   Route,
 } from "lucide-react";
@@ -226,7 +227,7 @@ export default function BookingsClient() {
                   </h3>
                   <div className="mt-2 flex flex-col gap-1 text-[11px] text-fg-muted">
                     <span className="inline-flex items-center gap-1.5 truncate"><Navigation className="h-3 w-3 shrink-0" aria-hidden="true" /> {booking.pickup.address}</span>
-                    <span className="inline-flex items-center gap-1.5 truncate"><span className="h-1.5 w-1.5 shrink-0 rounded-full bg-lime ring-1 ring-ink/15" /> {booking.drop.address}</span>
+                    <span className="inline-flex items-center gap-1.5 truncate"><MapPin className="h-3 w-3 shrink-0" aria-hidden="true" /> {booking.drop.address}</span>
                   </div>
                 </div>
                 <div className="flex shrink-0 flex-row items-end justify-between gap-4 border-t border-line pt-3 sm:flex-col sm:border-t-0 sm:border-l sm:pl-5 sm:pt-0 sm:text-right">

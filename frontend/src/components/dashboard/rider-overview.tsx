@@ -132,7 +132,7 @@ export default function RiderOverview() {
                   </div>
                   <div className="ml-[3px] my-2 h-4 border-l border-dashed border-white/25" />
                   <div className="flex items-start gap-3">
-                    <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-lime" />
+                    <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                     <div className="min-w-0">
                       <p className="text-[10px] uppercase tracking-wider text-fg-inverse-subtle">Drop</p>
                       <p className="truncate text-sm font-semibold">{activeRide.drop.address.split(",").slice(0, 2).join(", ")}</p>
@@ -157,7 +157,7 @@ export default function RiderOverview() {
                   <p className="font-display mt-2 text-xl font-bold">{pendingRides[0].vehicle?.name || "Your ride"}</p>
                   <p className="mt-1 text-xs text-fg-muted">
                     <Navigation className="mr-1 inline-block h-3 w-3 align-middle" aria-hidden="true" />
-                    {pendingRides[0].pickup.address.split(",")[0]} → {pendingRides[0].drop.address.split(",")[0]} · {formatDate(pendingRides[0].date)} at {pendingRides[0].time}
+                    {pendingRides[0].pickup.address.split(",")[0]} <MapPin className="mr-1 inline-block h-2.5 w-2.5 align-middle" aria-hidden="true" /> {pendingRides[0].drop.address.split(",")[0]} · {formatDate(pendingRides[0].date)} at {pendingRides[0].time}
                   </p>
                 </div>
                 <StatusBadge status="pending" />
@@ -230,7 +230,7 @@ export default function RiderOverview() {
                       </div>
                       <p className="mt-1 truncate text-[10px] text-fg-muted">
                         <Navigation className="mr-1 inline-block h-2.5 w-2.5 align-middle" aria-hidden="true" />
-                        {ride.pickup.address.split(",")[0]} → {ride.drop.address.split(",")[0]}
+                        {ride.pickup.address.split(",")[0]} <MapPin className="mr-1 inline-block h-2.5 w-2.5 align-middle" aria-hidden="true" /> {ride.drop.address.split(",")[0]}
                       </p>
                     </div>
                     <div className="shrink-0 text-right">

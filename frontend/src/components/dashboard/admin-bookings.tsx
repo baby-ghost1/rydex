@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   CreditCard,
   Loader2,
+  MapPin,
   Navigation,
   PackageOpen,
   RefreshCw,
@@ -344,7 +345,7 @@ export default function AdminBookings() {
                   <span className="truncate text-fg-muted">{booking.pickup.address}</span>
                 </div>
                 <div className="flex min-w-0 flex-1 items-center gap-2 text-[10px]">
-                  <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-lime ring-1 ring-ink/20" />
+                  <MapPin className="h-3 w-3 shrink-0" aria-hidden="true" />
                   <span className="truncate text-fg-muted">{booking.drop.address}</span>
                 </div>
                 <div className="flex shrink-0 items-center gap-3 text-[10px] text-fg-muted">

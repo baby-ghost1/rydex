@@ -13,6 +13,7 @@ import {
   Clock3,
   CreditCard,
   Loader2,
+  MapPin,
   MessageCircle,
   Navigation,
   PackageOpen,
@@ -250,7 +251,7 @@ export default function PartnerRequests() {
                       </div>
                       <div className="ml-[3px] my-2 h-4 border-l border-dashed border-line-strong" />
                       <div className="flex items-start gap-3">
-                        <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-lime ring-1 ring-ink/20" />
+                        <MapPin className="mt-0.5 h-3 w-3 shrink-0" aria-hidden="true" />
                         <div className="min-w-0">
                           <p className="text-[10px] uppercase tracking-wider text-fg-subtle">Drop</p>
                           <p className="mt-0.5 text-xs font-medium leading-relaxed text-fg">{ride.drop.address}</p>
