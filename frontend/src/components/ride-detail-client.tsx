@@ -166,31 +166,61 @@ export default function RideDetailClient({ bookingId }: { bookingId: string }) {
 
   // Browsers name the printed file after document.title, so swap in the booking
   // code while the print dialog is open and restore the page title afterwards.
+  // Chrome reads the title asynchronously once printing starts (and framework
+  // metadata can reset it in between), so the swap is re-asserted with a
+  // MutationObserver and released shortly after the dialog closes instead of
+  // on a fixed timer.
   useEffect(() => {
     if (!bookingCode) return;
     const originalTitle = document.title;
-    const useBookingCode = () => {
+    let observer: MutationObserver | null = null;
+    let releaseTimer = 0;
+
+    const holdBookingTitle = () => {
       document.title = bookingCode;
+      observer?.disconnect();
+      observer = new MutationObserver(() => {
+        if (document.title !== bookingCode) document.title = bookingCode;
+      });
+      observer.observe(document.head, { subtree: true, childList: true, characterData: true });
     };
-    const restoreTitle = () => {
+
+    const releaseBookingTitle = () => {
+      observer?.disconnect();
+      observer = null;
       document.title = originalTitle;
     };
+
+    const useBookingCode = () => {
+      window.clearTimeout(releaseTimer);
+      holdBookingTitle();
+    };
+
+    const restoreTitle = () => {
+      // Chrome starts reading the title for the suggested PDF filename around
+      // the print dialog lifecycle, so release it a beat after afterprint.
+      window.clearTimeout(releaseTimer);
+      releaseTimer = window.setTimeout(releaseBookingTitle, 600);
+    };
+
     window.addEventListener("beforeprint", useBookingCode);
     window.addEventListener("afterprint", restoreTitle);
     return () => {
       window.removeEventListener("beforeprint", useBookingCode);
       window.removeEventListener("afterprint", restoreTitle);
+      window.clearTimeout(releaseTimer);
+      observer?.disconnect();
+      document.title = originalTitle;
     };
   }, [bookingCode]);
 
   const printReceipt = useCallback(() => {
     if (!bookingCode) return;
-    const originalTitle = document.title;
+    // The swapped title is held and restored by the print listeners above.
+    // Defer print() by a tick so the preview snapshots the booking code as the
+    // suggested filename instead of the previous page title.
     document.title = bookingCode;
-    window.print();
-    window.setTimeout(() => {
-      document.title = originalTitle;
-    }, 400);
+    window.setTimeout(() => window.print(), 50);
   }, [bookingCode]);
 
   // Refresh ride data only when the server tells us there is an update.
