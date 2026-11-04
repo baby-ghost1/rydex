@@ -22,9 +22,10 @@ loadEnvConfig(
 
 const nextConfig: NextConfig = {
   // Turbopack must be allowed to read backend/ and shared/ from the monorepo.
-  turbopack: {
-    root: monorepoRoot,
-  },
+  // Disabled for now due to monorepo resolution issues - using webpack instead
+  // turbopack: {
+  //   root: monorepoRoot,
+  // },
   // Include the workspace packages in the standalone/serverless output trace.
   outputFileTracingRoot: monorepoRoot,
   transpilePackages: ["@rydex/backend", "@rydex/shared"],
