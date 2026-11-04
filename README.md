@@ -83,7 +83,10 @@ The application keeps the demonstrated stack (Next.js App Router, MongoDB, Auth.
 | Partner - MetroWheels | `metro@rydex.app` | `Metro@12345` |
 | Partner - CargoLine Logistics | `cargo@rydex.app` | `Cargo@12345` |
 
-> Change every seed password before using ek shared ya production database. The seed command is for demos aur local development.
+> **SECURITY WARNING**: These are demo credentials only. Change ALL passwords before deploying to production. The seed command is for demos and local development only.
+> 
+> In production, use `npm run create-admin` to create a production admin with secure credentials.
+> Demo partners and users should register normally via the application.
 
 ---
 

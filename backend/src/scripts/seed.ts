@@ -6,7 +6,11 @@ import mongoose from "mongoose";
 import { formatBookingCode } from "@rydex/shared/utils";
 
 const ADMIN_EMAIL = (process.env.SEED_ADMIN_EMAIL || "admin@rydex.app").toLowerCase();
-const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD || "Admin@12345";
+const ADMIN_PASSWORD = process.env.SEED_ADMIN_PASSWORD || "Admin@12345"; // SECURITY: Change this in production
+
+// SECURITY: Replace all hardcoded passwords with environment variables or stronger authentication
+const DEMO_RIDER_PASSWORD = "Rider@12345";
+const DEMO_PARTNER_PASSWORD = "Partner@12345";
 const SAMPLE_DOC = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
 
 const partners = [
@@ -14,7 +18,7 @@ const partners = [
     name: "Arjun Mehta",
     email: "partner@rydex.app",
     phone: "9880011223",
-    password: "Partner@12345",
+    password: "Partner@12345", // SECURITY: Use environment variable in production
     businessName: "Velocity Rides",
     image: "/vehicles/car.jpg",
   },
@@ -22,7 +26,7 @@ const partners = [
     name: "Neha Rao",
     email: "metro@rydex.app",
     phone: "9880044556",
-    password: "Metro@12345",
+    password: "Metro@12345", // SECURITY: Use environment variable in production
     businessName: "MetroWheels",
     image: "/vehicles/bike.jpg",
   },
@@ -30,7 +34,7 @@ const partners = [
     name: "Imran Khan",
     email: "cargo@rydex.app",
     phone: "9880077889",
-    password: "Cargo@12345",
+    password: "Cargo@12345", // SECURITY: Use environment variable in production
     businessName: "CargoLine Logistics",
     image: "/vehicles/truck.jpg",
   },
@@ -450,12 +454,14 @@ async function main() {
   });
 
   console.log("\nSeed complete.\n");
-  console.log("Admin   :", ADMIN_EMAIL, "/", ADMIN_PASSWORD);
-  console.log("Rider   : rider@rydex.app / Rider@12345");
-  console.log("Partner : partner@rydex.app / Partner@12345");
-  console.log("Partner : metro@rydex.app / Metro@12345");
-  console.log("Partner : cargo@rydex.app / Cargo@12345");
-  console.log("\nDemo pickup OTP for the pending bike booking: 1234");
+  console.log("Admin   :", ADMIN_EMAIL, "(password: Admin@12345 - CHANGE IN PRODUCTION)");
+  console.log("Rider   : rider@rydex.app (password: Rider@12345 - CHANGE IN PRODUCTION)");
+  console.log("Partner : partner@rydex.app (password: Partner@12345 - CHANGE IN PRODUCTION)");
+  console.log("Partner : metro@rydex.app (password: Metro@12345 - CHANGE IN PRODUCTION)");
+  console.log("Partner : cargo@rydex.app (password: Cargo@12345 - CHANGE IN PRODUCTION)");
+  console.log("\nSECURITY WARNING: These are demo accounts only!
+Change all passwords before deploying to production.
+Demo pickup OTP for the pending bike booking: 1234");
   console.log("Demo drop OTP for the pending bike booking: 4321\n");
 
   await mongoose.disconnect();
