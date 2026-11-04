@@ -30,12 +30,16 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: monorepoRoot,
   transpilePackages: ["@rydex/backend", "@rydex/shared"],
   images: {
+    // AVIF first - noticeably smaller hero/vehicle images than webp alone.
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
       { protocol: "https", hostname: "res.cloudinary.com" },
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
     ],
   },
+  // Do not advertise the framework via the X-Powered-By header.
+  poweredByHeader: false,
   serverExternalPackages: ["cloudinary", "nodemailer", "razorpay"],
   experimental: {
     serverActions: { bodySizeLimit: "10mb" },

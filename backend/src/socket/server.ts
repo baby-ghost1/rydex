@@ -162,3 +162,18 @@ httpServer.listen(PORT, () => {
   console.log(`[socket] RYDEX realtime server listening on :${PORT}`);
   console.log(`[socket] allowed origin ${ORIGIN}`);
 });
+
+// Render's free tier spins the service down after 15 minutes without inbound
+// traffic. Pinging our own public /health through Render's proxy keeps the
+// idle timer resetting while this process is alive; the GitHub Actions cron
+// (.github/workflows/keep-alive.yml) covers waking it after a cold start.
+const SELF_URL = process.env.RENDER_EXTERNAL_URL;
+if (SELF_URL) {
+  const pingSelf = () => {
+    fetch(`${SELF_URL}/health`)
+      .then((res) => console.log(`[socket] keep-alive ping -> ${res.status}`))
+      .catch(() => {});
+  };
+  pingSelf();
+  setInterval(pingSelf, 10 * 60_000);
+}
