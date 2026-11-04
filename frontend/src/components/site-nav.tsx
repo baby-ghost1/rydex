@@ -5,9 +5,12 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import {
+  CarFront,
   ChevronDown,
+  CircleHelp,
   LayoutDashboard,
   LogOut,
+  Mail,
   Menu,
   Repeat2,
   Ticket,
@@ -168,10 +171,8 @@ export default function SiteNav({ dark = false }: { dark?: boolean }) {
     <header className="no-print relative inset-x-0 top-0 z-50 px-4 pt-2 sm:px-6">
       <div
         className={cn(
-          "mx-auto flex max-w-6xl items-center justify-between gap-4 rounded-full border px-4 py-2.5 shadow-[0_18px_50px_rgba(0,0,0,0.12)] sm:px-6",
-          dark
-            ? "surface-inverse border-white/10"
-            : "surface-default border-line",
+          "mx-auto flex max-w-6xl items-center justify-between gap-4 rounded-full px-4 py-2.5 shadow-[0_18px_50px_rgba(0,0,0,0.12)] sm:px-6",
+          dark ? "surface-inverse" : "surface-default",
         )}
       >
         <Logo dark={dark} className="min-h-11" />
@@ -303,7 +304,7 @@ export default function SiteNav({ dark = false }: { dark?: boolean }) {
               type="button"
               onClick={() => dispatch(openAuthModal("login"))}
               className={cn(
-                "hidden min-h-11 items-center gap-2 rounded-full px-5 text-[13px] font-semibold transition sm:inline-flex",
+                "inline-flex min-h-11 items-center gap-2 rounded-full px-5 text-[13px] font-semibold transition",
                 dark
                   ? "bg-lime text-ink hover:brightness-95 active:scale-[0.98]"
                   : "bg-ink text-white hover:bg-ink-soft active:scale-[0.98]",
@@ -314,128 +315,63 @@ export default function SiteNav({ dark = false }: { dark?: boolean }) {
             </button>
           )}
 
-          <button
-            ref={menuButtonRef}
-            type="button"
-            onClick={() => {
-              setAccountOpen(false);
-              setMenuOpen((open) => !open);
-            }}
-            aria-label={menuOpen ? "Close navigation" : "Open navigation"}
-            aria-expanded={menuOpen}
-            aria-controls="mobile-navigation"
-            className={cn(
-              "icon-button border",
-              dark
-                ? "border-white/20 text-fg hover:bg-white/10"
-                : "border-line text-fg hover:bg-surface-muted",
-            )}
-          >
-            {menuOpen ? (
-              <X className="h-4 w-4" aria-hidden="true" />
-            ) : (
-              <Menu className="h-4 w-4" aria-hidden="true" />
-            )}
-          </button>
-        </div>
-      </div>
+          <div className="relative">
+            <button
+              ref={menuButtonRef}
+              type="button"
+              onClick={() => {
+                setAccountOpen(false);
+                setMenuOpen((open) => !open);
+              }}
+              aria-label={menuOpen ? "Close navigation" : "Open navigation"}
+              aria-expanded={menuOpen}
+              aria-controls="site-navigation"
+              className={cn(
+                "icon-button border",
+                dark
+                  ? "border-white/20 text-fg hover:bg-white/10"
+                  : "border-line text-fg hover:bg-surface-muted",
+              )}
+            >
+              {menuOpen ? (
+                <X className="h-4 w-4" aria-hidden="true" />
+              ) : (
+                <Menu className="h-4 w-4" aria-hidden="true" />
+              )}
+            </button>
 
-      {menuOpen && (
-        <div
-          ref={mobileMenuRef}
-          id="mobile-navigation"
-          className={cn(
-            "mx-auto mt-2 max-w-6xl overflow-hidden rounded-3xl border p-3 shadow-2xl",
-            dark
-              ? "surface-inverse border-white/10"
-              : "surface-default border-line",
-          )}
-        >
-          <nav aria-label="Mobile navigation" className="grid gap-1">
-            {links.map((link) => {
-              const active = isActive(link.href);
-              const current = active
-                ? link.href.includes("#")
-                  ? "location"
-                  : "page"
-                : undefined;
-
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => handleNavClick(link.href)}
-                  aria-current={current}
-                  className={cn(
-                    "flex min-h-11 items-center rounded-2xl px-4 text-sm font-medium transition",
-                    active
-                      ? dark
-                        ? "bg-white/10 text-fg"
-                        : "bg-surface-muted text-fg"
-                      : dark
-                        ? "text-fg-muted hover:bg-white/10 hover:text-fg"
-                        : "text-fg-muted hover:bg-surface-muted hover:text-fg",
-                  )}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-          </nav>
-
-          <div className="mt-2 border-t border-line pt-2">
-            {session ? (
-              <>
-                <Link
-                  href={dashboardHref}
-                  onClick={closeMenus}
-                  className={cn(
-                    "flex min-h-11 items-center gap-2.5 rounded-2xl px-4 text-sm font-semibold transition",
-                    dark
-                      ? "bg-lime text-ink hover:brightness-95"
-                      : "bg-ink text-white hover:bg-ink-soft",
-                  )}
-                >
-                  <LayoutDashboard className="h-4 w-4" aria-hidden="true" />
-                  Dashboard
-                </Link>
-                <button
-                  type="button"
-                  onClick={() => {
-                    closeMenus();
-                    void signOut({ callbackUrl: "/" });
-                  }}
-                  className={cn(
-                    "mt-1 flex min-h-11 w-full items-center gap-2.5 rounded-2xl px-4 text-sm font-medium transition",
-                    dark
-                      ? "text-danger-on-dark hover:bg-white/10"
-                      : "text-danger hover:bg-danger/5",
-                  )}
-                >
-                  <LogOut className="h-4 w-4" aria-hidden="true" />
-                  Sign out
-                </button>
-              </>
-            ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  closeMenus();
-                  dispatch(openAuthModal("login"));
-                }}
-                className={cn(
-                  "flex min-h-11 w-full items-center justify-center rounded-2xl px-4 text-sm font-semibold transition",
-                  dark
-                    ? "bg-lime text-ink hover:brightness-95"
-                    : "bg-ink text-white hover:bg-ink-soft",
-                )}
+            {menuOpen && (
+              <div
+                ref={mobileMenuRef}
+                id="site-navigation"
+                className="surface-default absolute right-0 z-50 mt-3 w-52 overflow-hidden rounded-2xl border border-line p-1.5 text-fg shadow-2xl"
               >
-                Login / Create account
-              </button>
+                <nav aria-label="Site navigation" className="grid">
+                  {links.map((link) => {
+                    const Icon = link.href === "/fleet" ? CarFront : link.href === "/faq" ? CircleHelp : Mail;
+
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => handleNavClick(link.href)}
+                        aria-current={isActive(link.href) ? "page" : undefined}
+                        className={cn(
+                          "flex min-h-11 items-center gap-2.5 rounded-xl px-3 text-sm transition hover:bg-surface-muted",
+                          isActive(link.href) && "bg-surface-muted",
+                        )}
+                      >
+                        <Icon className="h-4 w-4 text-fg-muted" aria-hidden="true" />
+                        {link.label}
+                      </Link>
+                    );
+                  })}
+                </nav>
+              </div>
             )}
           </div>
         </div>
-      )}
+      </div>
     </header>
   );
 }
